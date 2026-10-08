@@ -11,9 +11,9 @@ class VentanaCuotasPendientes(QMainWindow):
         self.tabla.setHorizontalHeaderLabels(["Alumno", "Mes", "Importe (€)"])
 
         self.cursor.execute("""
-                                SELECT alumno.nombre || ' ' || alumno.apellidos, cuotas.mes_cuota, cuotas.importe "
-                                FROM cuotas 
-                                JOIN alumno ON cuotas.id_alumno = alumno.id 
+                                SELECT alumno.nombre || ' ' || alumno.apellidos, cuotas.mes_cuota, cuotas.importe
+                                FROM cuotas
+                                JOIN alumno ON cuotas.id_alumno = alumno.id
                                 WHERE cuotas.pago_realizado = 0
                                 ORDER BY cuotas.mes_cuota
                             """)
