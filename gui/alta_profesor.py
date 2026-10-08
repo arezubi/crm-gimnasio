@@ -66,7 +66,7 @@ class VentanaAltaProfesor(QMainWindow):
             fecha_convertida,
             self.campo_email.text().strip(),
             self.campo_telefono.text().strip(),
-            self.check_activo.isChecked().strip() 
+            self.check_activo.isChecked()
         )
         if resultado is True:
             QMessageBox.information(self, "Éxito", "Profesor guardado correctamente.")

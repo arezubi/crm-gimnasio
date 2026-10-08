@@ -11,7 +11,7 @@ class VentanaGraficoAlumnosNuevosPorAnio(QMainWindow):
 
         self.figura = Figure(figsize=(6, 4))
         self.ejes = self.figura.add_subplot(111)
-        self.ejes.bar(self.ingresos_por_anio.index.astype(str), self.ingresos_por_anio.values)
+        self.ejes.bar(self.alumnos_por_anio.index.astype(str), self.alumnos_por_anio)
         self.ejes.set_title("Alumnos nuevos por año")
         self.ejes.set_ylabel("Nº alumnos")
         self.ejes.set_xlabel("Año")
