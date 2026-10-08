@@ -50,8 +50,8 @@ class VentanaAltaTipoCuota(QMainWindow):
             QMessageBox.information(self, "Éxito", "Tipo de cuota guardado correctamente.")
             self.campo_nombre.clear()
             self.campo_precio.clear()
-        elif resultado == 'duplicado':
-            QMessageBox.warning(self, "Error", "Ya existe una cuota con este nombre.")   
+        elif resultado == "duplicado":
+            QMessageBox.warning(self, "Aviso", "Ya existe un tipo de cuota con ese nombre.")
         else:
             QMessageBox.warning(self, "Error", "No se pudo dar de alta la cuota.")   
         

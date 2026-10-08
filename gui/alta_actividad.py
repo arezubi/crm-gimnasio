@@ -48,7 +48,7 @@ class VentanaAltaActividad(QMainWindow):
             QMessageBox.information(self, "Éxito", "Actividad guardada correctamente.")
             self.campo_nombre.clear()
             self.combo_profesor.setCurrentIndex(0)
-        elif resultado == 'duplicado':
-            QMessageBox.warning(self, "Error", "Ya existe un alumno con este email.")   
+        elif resultado == "duplicado":
+            QMessageBox.warning(self, "Aviso", "Ese profesor ya tiene una actividad con ese nombre.")
         else:
-            QMessageBox.warning(self, "Error", "No se pudo dar de alta al alumno.")   
+            QMessageBox.warning(self, "Error", "No se pudo dar de alta la actividad.")   

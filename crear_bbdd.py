@@ -42,7 +42,8 @@ cursor.execute("""
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	nombre VARCHAR NOT NULL,
 	id_profesor INTEGER NOT NULL,
-    FOREIGN KEY (id_profesor) REFERENCES PROFESOR(id)
+    FOREIGN KEY (id_profesor) REFERENCES PROFESOR(id),
+    UNIQUE(nombre, id_profesor)
     )
 """)
 
@@ -71,7 +72,7 @@ cursor.execute("""
 cursor.execute("""
     CREATE TABLE IF NOT EXISTS tipo_cuota (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	nombre VARCHAR NOT NULL,
+	nombre VARCHAR NOT NULL UNIQUE,
 	precio INTEGER NOT NULL
     )
 """)
