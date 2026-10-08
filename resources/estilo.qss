@@ -1,0 +1,110 @@
+QMainWindow, QWidget {
+    background-color: #161616;
+    color: #f2f2f2;
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 13px;
+}
+
+QLabel {
+    color: #f2f2f2;
+}
+
+QLineEdit, QComboBox, QDateEdit {
+    background-color: #232323;
+    color: #f2f2f2;
+    border: 1px solid #333333;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+QLineEdit:focus, QComboBox:focus, QDateEdit:focus {
+    border: 1px solid #ff6a00;
+}
+
+QPushButton {
+    background-color: #ff6a00;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 14px;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 24px;
+}
+
+QPushButton:hover {
+    background-color: #ff8533;
+}
+
+QPushButton:pressed {
+    background-color: #cc5500;
+}
+
+QMenuBar {
+    background-color: #1c1c1c;
+    color: #f2f2f2;
+    padding: 4px;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+QMenuBar::item {
+    padding: 6px 12px;
+    border-radius: 6px;
+}
+
+QMenuBar::item:selected {
+    background-color: #ff6a00;
+    color: #ffffff;
+}
+
+QMenu {
+    background-color: #232323;
+    color: #f2f2f2;
+    border: 1px solid #333333;
+    border-radius: 6px;
+}
+
+QMenu::item {
+    padding: 6px 20px;
+}
+
+QMenu::item:selected {
+    background-color: #ff6a00;
+    border-radius: 4px;
+}
+
+QTableWidget {
+    background-color: #1c1c1c;
+    color: #f2f2f2;
+    gridline-color: #2a2a2a;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+}
+
+QHeaderView::section {
+    background-color: #ff6a00;
+    color: #ffffff;
+    font-weight: bold;
+    padding: 6px;
+    border: none;
+}
+
+QMessageBox {
+    background-color: #1c1c1c;
+}
+
+QFrame#tarjeta {
+    color: #222222;
+    border: 1px solid #ff6a00;
+    border-radius: 10px;
+}
+
+QLabel#valor_tarjeta{
+    font-size: 32px;
+    font-weight: bold;
+    color: #ff6a00
+}
+
+QLabel#titulo_tarjeta {
+    color: #aaaaaa;
+    font-size: 14px;
+}
