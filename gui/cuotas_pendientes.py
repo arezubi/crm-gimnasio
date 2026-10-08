@@ -8,13 +8,15 @@ class VentanaCuotasPendientes(QMainWindow):
 
         self.tabla = QTableWidget()
         self.tabla.setColumnCount(3)
-        self.tabla.setHorizontalHeaderLabels(["Alumno", "Mes", "Precio"])
+        self.tabla.setHorizontalHeaderLabels(["Alumno", "Mes", "Importe (€)"])
 
-        self.cursor.execute("SELECT alumno.nombre || ' ' || alumno.apellidos, cuotas.mes_cuota, tipo_cuota.precio "
-                            "FROM cuotas "
-                            "JOIN alumno ON cuotas.id_alumno = alumno.id "
-                            "JOIN tipo_cuota ON cuotas.id_tipo_cuota = tipo_cuota.id "
-                            "WHERE cuotas.pago_realizado = 0")
+        self.cursor.execute("""
+                                SELECT alumno.nombre || ' ' || alumno.apellidos, cuotas.mes_cuota, cuotas.importe "
+                                FROM cuotas 
+                                JOIN alumno ON cuotas.id_alumno = alumno.id 
+                                WHERE cuotas.pago_realizado = 0
+                                ORDER BY cuotas.mes_cuota
+                            """)
         filas = self.cursor.fetchall()
         self.tabla.setRowCount(len(filas))
         for fila_idx, fila in enumerate(filas):
