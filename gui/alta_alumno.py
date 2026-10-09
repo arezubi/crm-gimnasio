@@ -1,81 +1,65 @@
-import sys
-from PySide6.QtWidgets import QMainWindow, QWidget, QFormLayout, QLineEdit, QPushButton, QMessageBox
+from PySide6.QtCore import QDate
+from PySide6.QtWidgets import QDateEdit, QLineEdit, QMessageBox
 from db.db import alta_alumno
-from datetime import datetime
+from gui.componentes import FormularioBase, marcar_error
 
-class VentanaAltaAlumno(QMainWindow):
+
+class VentanaAltaAlumno(FormularioBase):
     def __init__(self, cursor):
-        super().__init__()
+        super().__init__("Alta de alumno", "Registra un nuevo alumno en el gimnasio.")
         self.cursor = cursor
-        self.setWindowTitle("Alta de alumno")
 
         self.campo_nombre = QLineEdit()
+        self.campo_nombre.setPlaceholderText("Ej. Ana")
         self.campo_apellidos = QLineEdit()
-        self.campo_fecha = QLineEdit()
+        self.campo_apellidos.setPlaceholderText("Ej. García López")
+        self.campo_fecha = QDateEdit()
+        self.campo_fecha.setDisplayFormat("dd/MM/yyyy")
+        self.campo_fecha.setCalendarPopup(True)
+        self.campo_fecha.setMaximumDate(QDate.currentDate())
+        self.campo_fecha.setDate(QDate(2000, 1, 1))
         self.campo_email = QLineEdit()
+        self.campo_email.setPlaceholderText("nombre@email.com")
         self.campo_telefono = QLineEdit()
+        self.campo_telefono.setPlaceholderText("600 000 000")
         self.campo_contacto_emergencia = QLineEdit()
+        self.campo_contacto_emergencia.setPlaceholderText("Nombre y teléfono")
 
-        self.boton_guardar = QPushButton("Guardar")
-        self.boton_guardar.clicked.connect(self.guardar_alumno)
-        
-        layout = QFormLayout()
-        layout.addRow("Nombre:", self.campo_nombre)
-        layout.addRow("Apellidos:", self.campo_apellidos)
-        layout.addRow("Fecha de cumpleaños:", self.campo_fecha)
-        layout.addRow("Email:", self.campo_email)
-        layout.addRow("Teléfono:", self.campo_telefono)
-        layout.addRow("Contacto de emergencia:", self.campo_contacto_emergencia)
-        layout.addRow(self.boton_guardar)
-
-        contenedor = QWidget()
-        contenedor.setLayout(layout)
-        self.setCentralWidget(contenedor)
+        self.agregar_campo("Nombre", self.campo_nombre)
+        self.agregar_campo("Apellidos", self.campo_apellidos)
+        self.agregar_campo("Fecha de nacimiento", self.campo_fecha)
+        self.agregar_campo("Email", self.campo_email)
+        self.agregar_campo("Teléfono", self.campo_telefono)
+        self.agregar_campo("Contacto de emergencia", self.campo_contacto_emergencia)
+        self.agregar_boton("Guardar alumno", self.guardar_alumno)
 
     def guardar_alumno(self):
-        
-        if(campo_nombre := self.campo_nombre.text()) == "":
-            QMessageBox.warning(self, "Error", "El campo nombre no puede estar vacío.")
+        valores = self.leer_obligatorios([
+            (self.campo_nombre, "Nombre"),
+            (self.campo_apellidos, "Apellidos"),
+            (self.campo_email, "Email"),
+            (self.campo_telefono, "Teléfono"),
+            (self.campo_contacto_emergencia, "Contacto de emergencia"),
+        ])
+        if valores is None:
             return
-        if(campo_apellidos := self.campo_apellidos.text()) == "":
-            QMessageBox.warning(self, "Error", "El campo apellidos no puede estar vacío.")
+        nombre, apellidos, email, telefono, contacto_emergencia = valores
+
+        if "@" not in email:
+            marcar_error(self.campo_email, True)
+            QMessageBox.warning(self, "Email no válido", "Revisa el email del alumno.")
             return
-        if(campo_fecha := self.campo_fecha.text()) == "":
-            QMessageBox.warning(self, "Error", "El campo fecha no puede estar vacío.")
-            return
-        if(campo_email := self.campo_email.text()) == "":
-            QMessageBox.warning(self, "Error", "El campo email no puede estar vacío.")
-            return
-        if(campo_telefono := self.campo_telefono.text()) == "":
-            QMessageBox.warning(self, "Error", "El campo teléfono no puede estar vacío.")
-            return
-        if(campo_contacto_emergencia := self.campo_contacto_emergencia.text()) == "":
-            QMessageBox.warning(self, "Error", "El campo contacto de emergencia no puede estar vacío.")
-            return
-        try:
-            fecha_convertida = datetime.strptime(self.campo_fecha.text(), "%d-%m-%Y").strftime("%Y-%m-%d")
-        except ValueError:
-            QMessageBox.warning(self, "Error", "La fecha debe tener el formato DD-MM-AAAA.")
-            return
-        
-        resultado = alta_alumno(
-            self.cursor,
-            self.campo_nombre.text().strip(),
-            self.campo_apellidos.text().strip(),
-            fecha_convertida,
-            self.campo_email.text().strip(),
-            self.campo_telefono.text().strip(),
-            self.campo_contacto_emergencia.text().strip()
-        )
+
+        fecha = self.campo_fecha.date().toString("yyyy-MM-dd")
+        resultado = alta_alumno(self.cursor, nombre, apellidos, fecha, email, telefono, contacto_emergencia)
+
         if resultado is True:
-            QMessageBox.information(self, "Éxito", "Alumno guardado correctamente.")   
-            self.campo_nombre.clear()
-            self.campo_apellidos.clear()
-            self.campo_fecha.clear()
-            self.campo_email.clear()
-            self.campo_telefono.clear()
-            self.campo_contacto_emergencia.clear()
+            QMessageBox.information(self, "Éxito", f"{nombre} {apellidos} ya es alumno del gimnasio.")
+            self.limpiar_campos([self.campo_nombre, self.campo_apellidos, self.campo_email,
+                                 self.campo_telefono, self.campo_contacto_emergencia])
+            self.campo_fecha.setDate(QDate(2000, 1, 1))
         elif resultado == 'duplicado':
-            QMessageBox.warning(self, "Error", "Ya existe un alumno con este email.")   
+            marcar_error(self.campo_email, True)
+            QMessageBox.warning(self, "Error", "Ya existe un alumno con este email.")
         else:
-            QMessageBox.warning(self, "Error", "No se pudo dar de alta al alumno.")   
+            QMessageBox.warning(self, "Error", "No se pudo dar de alta al alumno.")

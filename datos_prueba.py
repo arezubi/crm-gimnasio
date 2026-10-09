@@ -13,12 +13,13 @@ Cubre varias casuísticas para poder probar la app de verdad:
 - Asistencias repartidas en varios días
 - Un usuario admin y un usuario operador vinculado a un profesor (para probar el login)
 
-Ejecútalo UNA VEZ desde la raíz del proyecto: python poblar_datos_prueba.py
+Ejecútalo UNA VEZ desde la raíz del proyecto: python datos_prueba.py
 Si ya tenías datos de antes y quieres partir de cero, borra gimnasio.db y
 vuelve a ejecutar crear_bbdd.py antes de este script.
 """
 
 import sqlite3
+from config import RUTA_BD
 from db.db import (
     alta_alumno,
     alta_profesor,
@@ -32,7 +33,7 @@ from db.db import (
     registrar_usuario,
 )
 
-conexion = sqlite3.connect("gimnasio.db")
+conexion = sqlite3.connect(RUTA_BD)
 conexion.execute("PRAGMA foreign_keys = ON")
 cursor = conexion.cursor()
 
@@ -162,12 +163,12 @@ registrar_asistencia(cursor, id_sofia, id_kickboxing, "2026-09-06")
 
 
 print("--- Usuarios (para probar el login) ---")
-registrar_usuario(cursor, "Admin", "admin@gimnasio.com", "admin123", "admin")
+# El admin lo crea crear_usuario_inicial.py; aquí solo añadimos un operador.
 registrar_usuario(cursor, "Marcos Login", "marcos.login@gimnasio.com", "operador123", "operador", id_marcos)
 
 conexion.close()
 
 print("\n¡Listo! Datos de prueba insertados en gimnasio.db.")
 print("Usuarios para entrar en la app:")
-print("  admin@gimnasio.com / admin123  (rol admin, sin profesor asociado)")
+print("  admin@gimnasio.com / admin123  (creado por crear_usuario_inicial.py)")
 print("  marcos.login@gimnasio.com / operador123  (rol operador, vinculado a Marcos Díaz)")

@@ -1,106 +1,178 @@
-from PySide6.QtWidgets import QMainWindow
-from gui.actividad_mas_usada import VentanaActividadMasUsada
-from gui.alumnos_nuevos import VentanaAlumnosNuevos
-from gui.cuotas_pendientes import VentanaCuotasPendientes
+from PySide6.QtCore import QSize, Qt
+from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import (
+    QButtonGroup, QFrame, QHBoxLayout, QLabel, QMainWindow, QMessageBox,
+    QPushButton, QStackedWidget, QTabWidget, QVBoxLayout, QWidget,
+)
+from config import RUTA_LOGO
+from gui.componentes import crear_boton
+from gui.dashboard import PanelDashboard
+from gui.listado_alumnos import VentanaListadoAlumnos
+from gui.alta_alumno import VentanaAltaAlumno
+from gui.baja_alumno import VentanaBajaAlumno
+from gui.alta_profesor import VentanaAltaProfesor
+from gui.baja_profesor import VentanaBajaProfesor
+from gui.alta_actividad import VentanaAltaActividad
 from gui.inscribir_alumno import VentanaInscribirAlumno
 from gui.registrar_asistencia import VentanaRegistrarAsistencia
-from gui.registrar_usuario import VentanaRegistrarUsuario
-from gui.alta_actividad import VentanaAltaActividad
-from gui.alta_alumno import VentanaAltaAlumno
-from gui.alta_profesor import VentanaAltaProfesor
-from gui.alta_tipo_cuota import VentanaAltaTipoCuota
-from gui.baja_alumno import VentanaBajaAlumno
-from gui.baja_profesor import VentanaBajaProfesor
-from gui.crear_cuota import VentanaCrearCuota
-from gui.generar_factura import VentanaGenerarFactura
-from gui.listado_alumnos import VentanaListadoAlumnos
-from gui.grafico_ingresos import VentanaGraficoIngresos
+from gui.calendario_asistencia import VentanaCalendarioAsistencia
+from gui.cuotas_pendientes import VentanaCuotasPendientes
 from gui.marcar_cuota_pagada import VentanaMarcarCuotaPagada
+from gui.crear_cuota import VentanaCrearCuota
+from gui.alta_tipo_cuota import VentanaAltaTipoCuota
+from gui.generar_factura import VentanaGenerarFactura
+from gui.listado_facturas import VentanaListadoFacturas
+from gui.grafico_ingresos import VentanaGraficoIngresos
 from gui.grafico_ingresos_anual import VentanaGraficoIngresosAnual
+from gui.alumnos_nuevos import VentanaAlumnosNuevos
 from gui.alumnos_nuevos_por_anio import VentanaGraficoAlumnosNuevosPorAnio
-from gui.dashboard import PanelDashboard 
+from gui.actividad_mas_usada import VentanaActividadMasUsada
+from gui.registrar_usuario import VentanaRegistrarUsuario
+
+NOMBRES_ROL = {"admin": "Administrador", "operador": "Operador"}
 
 
 class VentanaPrincipal(QMainWindow):
-    def __init__(self, cursor, rol):
+    """Una sola ventana: barra lateral con las secciones a la izquierda
+    y, a la derecha, un QStackedWidget que muestra la sección elegida."""
+
+    def __init__(self, cursor, rol, nombre_usuario="Usuario"):
         super().__init__()
         self.cursor = cursor
-        self.setWindowTitle("Ventana Principal")
-        self.resize(1000, 700)
-        self.ventanas_abiertas = []
+        self.setWindowTitle("Spartan Team · CRM Gimnasio")
+        self.resize(1280, 800)
+        self.setMinimumSize(1100, 700)
 
-        self.barra_menu = self.menuBar()
+        # --- Barra lateral ---
+        barra_lateral = QFrame()
+        barra_lateral.setObjectName("barra_lateral")
+        barra_lateral.setFixedWidth(230)
+        self.layout_menu = QVBoxLayout(barra_lateral)
+        self.layout_menu.setContentsMargins(16, 24, 16, 16)
+        self.layout_menu.setSpacing(4)
 
-        menu_alumnos = self.barra_menu.addMenu("Alumnos")
-        menu_profesor = self.barra_menu.addMenu("Profesor")
-        menu_actividades = self.barra_menu.addMenu("Actividades")
-        menu_cuotas = self.barra_menu.addMenu("Cuotas")
-        menu_facturas = self.barra_menu.addMenu("Facturas")
-        menu_usuario = self.barra_menu.addMenu("Usuario")
-        menu_estadisticas = self.barra_menu.addMenu("Estadísticas")
+        logo = QLabel()
+        logo.setPixmap(QIcon(str(RUTA_LOGO)).pixmap(QSize(80, 120)))
+        logo.setAlignment(Qt.AlignCenter)
+        marca = QLabel("SPARTAN TEAM")
+        marca.setObjectName("marca")
+        marca.setAlignment(Qt.AlignCenter)
+        marca_sub = QLabel("CRM Gimnasio")
+        marca_sub.setObjectName("marca_sub")
+        marca_sub.setAlignment(Qt.AlignCenter)
+        self.layout_menu.addWidget(logo)
+        self.layout_menu.addWidget(marca)
+        self.layout_menu.addWidget(marca_sub)
+        self.layout_menu.addSpacing(24)
 
-        accion_alta = menu_alumnos.addAction("Alta de alumno")
-        accion_alta.triggered.connect(lambda: self.abrir_ventana(VentanaAltaAlumno))
+        # --- Zona central ---
+        self.paginas = QStackedWidget()
+        self.grupo_botones = QButtonGroup(self)   # solo un botón marcado a la vez
 
-        accion_baja = menu_alumnos.addAction("Baja de alumno")
-        accion_baja.triggered.connect(lambda: self.abrir_ventana(VentanaBajaAlumno))
+        # --- Secciones: (texto de la pestaña, página) ---
+        boton_inicio = self.agregar_seccion("Inicio", [
+            ("Inicio", PanelDashboard(cursor, nombre_usuario)),
+        ])
+        self.agregar_seccion("Alumnos", [
+            ("Listado", VentanaListadoAlumnos(cursor)),
+            ("Alta", VentanaAltaAlumno(cursor)),
+            ("Baja", VentanaBajaAlumno(cursor)),
+        ])
+        self.agregar_seccion("Profesores", [
+            ("Alta", VentanaAltaProfesor(cursor)),
+            ("Baja", VentanaBajaProfesor(cursor)),
+        ])
+        self.agregar_seccion("Actividades", [
+            ("Nueva actividad", VentanaAltaActividad(cursor)),
+            ("Inscripciones", VentanaInscribirAlumno(cursor)),
+            ("Registrar asistencia", VentanaRegistrarAsistencia(cursor)),
+            ("Calendario de asistencia", VentanaCalendarioAsistencia(cursor)),
+        ])
+        self.agregar_seccion("Cuotas", [
+            ("Pendientes", VentanaCuotasPendientes(cursor)),
+            ("Cobrar cuota", VentanaMarcarCuotaPagada(cursor)),
+            ("Nueva cuota", VentanaCrearCuota(cursor)),
+            ("Tipos de cuota", VentanaAltaTipoCuota(cursor)),
+        ])
+        self.agregar_seccion("Facturas", [
+            ("Generar factura", VentanaGenerarFactura(cursor)),
+            ("Facturas emitidas", VentanaListadoFacturas(cursor)),
+        ])
+        self.agregar_seccion("Estadísticas", [
+            ("Ingresos por mes", VentanaGraficoIngresos(cursor)),
+            ("Ingresos por año", VentanaGraficoIngresosAnual(cursor)),
+            ("Altas por mes", VentanaAlumnosNuevos(cursor)),
+            ("Altas por año", VentanaGraficoAlumnosNuevosPorAnio(cursor)),
+            ("Actividades", VentanaActividadMasUsada(cursor)),
+        ])
+        if rol == "admin":
+            self.agregar_seccion("Usuarios", [
+                ("Nuevo usuario", VentanaRegistrarUsuario(cursor)),
+            ])
 
-        accion_listado_alumnos = menu_alumnos.addAction("Listado de alumnos")
-        accion_listado_alumnos.triggered.connect(lambda: self.abrir_ventana(VentanaListadoAlumnos))
+        # --- Pie de la barra lateral: usuario y cerrar sesión ---
+        self.layout_menu.addStretch()
+        separador = QFrame()
+        separador.setObjectName("separador")
+        self.layout_menu.addWidget(separador)
+        self.layout_menu.addSpacing(8)
+        etiqueta_nombre = QLabel(nombre_usuario)
+        etiqueta_nombre.setObjectName("pie_nombre")
+        etiqueta_rol = QLabel(NOMBRES_ROL.get(rol, rol))
+        etiqueta_rol.setObjectName("pie_rol")
+        self.layout_menu.addWidget(etiqueta_nombre)
+        self.layout_menu.addWidget(etiqueta_rol)
+        self.layout_menu.addSpacing(8)
+        self.layout_menu.addWidget(crear_boton("Cerrar sesión", self.cerrar_sesion, tipo="secundario"))
 
-        accion_alta_profesor = menu_profesor.addAction("Alta de profesor")
-        accion_alta_profesor.triggered.connect(lambda: self.abrir_ventana(VentanaAltaProfesor))
+        contenedor = QWidget()
+        layout = QHBoxLayout(contenedor)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        layout.addWidget(barra_lateral)
+        layout.addWidget(self.paginas, 1)
+        self.setCentralWidget(contenedor)
 
-        accion_baja_profesor = menu_profesor.addAction("Baja de profesor")
-        accion_baja_profesor.triggered.connect(lambda: self.abrir_ventana(VentanaBajaProfesor))
+        boton_inicio.click()
 
-        accion_alta_actividad = menu_actividades.addAction("Alta de actividad")
-        accion_alta_actividad.triggered.connect(lambda: self.abrir_ventana(VentanaAltaActividad))
+    def agregar_seccion(self, nombre, paginas):
+        """Crea el botón de la barra lateral y su página.
+        Si la sección tiene varias páginas, las pone en pestañas."""
+        if len(paginas) == 1:
+            contenedor = paginas[0][1]
+        else:
+            contenedor = QTabWidget()
+            for titulo, pagina in paginas:
+                contenedor.addTab(pagina, titulo)
+            contenedor.currentChanged.connect(self.recargar_pagina_actual)
+        self.paginas.addWidget(contenedor)
 
-        accion_inscribir_alumnos = menu_actividades.addAction("Inscribir alumnos")
-        accion_inscribir_alumnos.triggered.connect(lambda: self.abrir_ventana(VentanaInscribirAlumno))
+        boton = QPushButton(nombre)
+        boton.setObjectName("boton_menu")
+        boton.setCheckable(True)
+        boton.setCursor(Qt.PointingHandCursor)
+        boton.clicked.connect(lambda: self.mostrar_seccion(contenedor))
+        self.grupo_botones.addButton(boton)
+        self.layout_menu.addWidget(boton)
+        return boton
 
-        accion_alta_tipo_cuota = menu_cuotas.addAction("Alta de tipo de cuota")
-        accion_alta_tipo_cuota.triggered.connect(lambda: self.abrir_ventana(VentanaAltaTipoCuota))
+    def mostrar_seccion(self, contenedor):
+        self.paginas.setCurrentWidget(contenedor)
+        self.recargar_pagina_actual()
 
-        accion_alta_cuota = menu_cuotas.addAction("Alta de cuota")
-        accion_alta_cuota.triggered.connect(lambda: self.abrir_ventana(VentanaCrearCuota))
+    def recargar_pagina_actual(self, *args):
+        """Cada vez que se muestra una página, vuelve a leer la base de datos.
+        Así los datos nunca se quedan desactualizados."""
+        pagina = self.paginas.currentWidget()
+        if isinstance(pagina, QTabWidget):
+            pagina = pagina.currentWidget()
+        try:
+            pagina.recargar()
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"No se pudo cargar esta pantalla:\n\n{e}")
 
-        accion_registrar_asistencia = menu_actividades.addAction("Registrar asistencia")
-        accion_registrar_asistencia.triggered.connect(lambda: self.abrir_ventana(VentanaRegistrarAsistencia))
-
-        accion_generar_factura = menu_facturas.addAction("Generar factura")
-        accion_generar_factura.triggered.connect(lambda: self.abrir_ventana(VentanaGenerarFactura))
-
-        accion_registrar_usuario = menu_usuario.addAction("Registrar usuario")
-        accion_registrar_usuario.triggered.connect(lambda: self.abrir_ventana(VentanaRegistrarUsuario))    
-
-        accion_cuotas_pendientes = menu_cuotas.addAction("Cuotas pendientes")
-        accion_cuotas_pendientes.triggered.connect(lambda: self.abrir_ventana(VentanaCuotasPendientes))
-
-        accion_marcar_pagadas = menu_cuotas.addAction("Marcar cuota pagada")
-        accion_marcar_pagadas.triggered.connect(lambda: self.abrir_ventana(VentanaMarcarCuotaPagada))
-
-        accion_actividad_mas_usada = menu_estadisticas.addAction("Actividad más usada")
-        accion_actividad_mas_usada.triggered.connect(lambda: self.abrir_ventana(VentanaActividadMasUsada))
-
-        accion_alumnos_nuevos_mes = menu_estadisticas.addAction("Alumnos nuevos por mes")
-        accion_alumnos_nuevos_mes.triggered.connect(lambda: self.abrir_ventana(VentanaAlumnosNuevos))
-
-        accion_alumnos_nuevos_anio = menu_estadisticas.addAction("Alumnos nuevos por año")
-        accion_alumnos_nuevos_anio.triggered.connect(lambda: self.abrir_ventana(VentanaGraficoAlumnosNuevosPorAnio))
-
-        accion_grafico_ingresos = menu_estadisticas.addAction("Ingresos por mes")
-        accion_grafico_ingresos.triggered.connect(lambda: self.abrir_ventana(VentanaGraficoIngresos))
-
-        accion_grafico_ingresos_anual = menu_estadisticas.addAction("Ingresos por año")
-        accion_grafico_ingresos_anual.triggered.connect(lambda: self.abrir_ventana(VentanaGraficoIngresosAnual)) 
-
-        self.setCentralWidget(PanelDashboard(cursor))
-        if rol != "admin":
-            menu_usuario.menuAction().setVisible(False)
-
-    def abrir_ventana(self, ClaseVentana):
-        ventana = ClaseVentana(self.cursor)
-        ventana.show()
-        self.ventanas_abiertas.append(ventana)
+    def cerrar_sesion(self):
+        from gui.login import VentanaLogin   # import aquí dentro: login.py ya importa este fichero
+        self.ventana_login = VentanaLogin(self.cursor)
+        self.ventana_login.show()
+        self.close()

@@ -1,7 +1,8 @@
 import sqlite3
+from config import RUTA_BD
 
 # 1. Conectar (si el archivo no existe, SQLite lo crea automáticamente)
-conexion = sqlite3.connect("gimnasio.db")
+conexion = sqlite3.connect(RUTA_BD)
 
 # 2. Crear un cursor (es lo que usas para ejecutar sentencias SQL)
 cursor = conexion.cursor()

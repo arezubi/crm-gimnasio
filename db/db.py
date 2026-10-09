@@ -49,7 +49,7 @@ def alta_profesor(cursor, nombre, apellidos, fecha_cumpleaños, email, telefono,
     email: Correo electrónico del profesor.
     telefono: Número de teléfono del profesor.
     activo: Estado del profesor (True para activo, False para inactivo).
-    fecha_alta: Fecha de alta del profesor (formato 'YYYY-MM-DD').
+    La fecha de alta se pone automáticamente (hoy).
 
     Retorna:
     True, False o 'duplicado'
@@ -137,6 +137,17 @@ def baja_profesor(cursor, profesor_id):
         return False
 
 def alta_actividad(cursor, nombre, id_profesor):
+    """
+    Función para dar de alta una actividad impartida por un profesor.
+
+    Parámetros:
+    cursor: Objeto cursor de la base de datos.
+    nombre: Nombre de la actividad.
+    id_profesor: ID del profesor que la imparte.
+
+    Retorna:
+    True, False o 'duplicado'
+    """
     try:
         cursor.execute("""
             INSERT INTO actividades (nombre, id_profesor)
@@ -162,7 +173,7 @@ def inscribir_alumno_actividad(cursor, alumno_id, actividad_id):
     actividad_id: ID de la actividad en la que se inscribirá el alumno.
 
     Retorna:
-    None
+    True, False o 'duplicado' (si ya estaba inscrito)
     """
     try:
         # Insertar la inscripción del alumno en la tabla correspondiente
@@ -229,7 +240,7 @@ def marcar_cuota_pagada(cursor, id_cuota):
     id_cuota: ID de la cuota a marcar como pagada.
 
     Retorna:
-    None
+    True, False, 'ya pagada' o 'no existe'
     """
 
     try:
@@ -310,7 +321,7 @@ def generar_facturas(cursor, id_cuota, fecha_factura=None):
     fecha_factura: Fecha de la factura (opcional, por defecto es hoy).
 
     Retorna:
-    None
+    True, False, 'duplicado', 'no pagada' o 'no existe'
     """
     if fecha_factura is None:
         fecha_factura = date.today().isoformat()
@@ -355,14 +366,13 @@ def registrar_usuario(cursor, nombre, email, password, rol, id_profesor=None):
     Parámetros:
     cursor: Objeto cursor de la base de datos.
     nombre: Nombre del usuario.
-    apellidos: Apellidos del usuario.
     email: Correo electrónico del usuario.
     password: Contraseña del usuario (en texto plano).
-    rol: Rol del usuario (por ejemplo, 'admin', 'profesor').
+    rol: Rol del usuario ('admin' u 'operador').
     id_profesor: ID del profesor asociado al usuario (opcional).
 
     Retorna:
-    None
+    True, False o 'duplicado' (si el email ya existe)
     """
     try:
         # Hashear la contraseña antes de almacenarla
@@ -392,6 +402,8 @@ def registrar_usuario(cursor, nombre, email, password, rol, id_profesor=None):
 
 def verificar_login(cursor, email, password):
     """
+    Función para comprobar el email y la contraseña de un usuario.
+
     Retorna el rol ('admin' u 'operador') si las credenciales son válidas,
     None en caso contrario.
     """
@@ -415,11 +427,6 @@ def verificar_login(cursor, email, password):
     except Exception as e:
         print(f"Error al verificar el inicio de sesión: {e}")
         return None
-    
-    except Exception as e:
-        # Manejar cualquier error que ocurra durante la verificación
-        print(f"Error al verificar el inicio de sesión: {e}")
-        return False
 
 def alta_tipo_cuota(cursor, nombre, precio):
     """
@@ -431,7 +438,7 @@ def alta_tipo_cuota(cursor, nombre, precio):
     precio: Precio del tipo de cuota.
 
     Retorna:
-    None
+    True, False o 'duplicado'
     """
     try:
         # Insertar el nuevo tipo de cuota en la tabla correspondiente

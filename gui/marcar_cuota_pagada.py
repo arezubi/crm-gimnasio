@@ -1,32 +1,29 @@
-from PySide6.QtWidgets import QMainWindow, QWidget, QFormLayout, QPushButton, QComboBox, QMessageBox
+from PySide6.QtWidgets import QComboBox, QMessageBox
 from db.db import marcar_cuota_pagada
+from gui.componentes import FormularioBase, formatear_euros, formatear_mes
 
-class VentanaMarcarCuotaPagada(QMainWindow):
+
+class VentanaMarcarCuotaPagada(FormularioBase):
     def __init__(self, cursor):
-        super().__init__()
+        super().__init__("Cobrar cuota", "Marca como pagada una cuota pendiente.")
         self.cursor = cursor
-        self.setWindowTitle("Marcar cuota como pagada")
 
         self.combo_cuota = QComboBox()
+        self.agregar_campo("Cuota pendiente", self.combo_cuota)
+        self.agregar_boton("Marcar como pagada", self.marcar_pagada)
+
+    def recargar(self):
+        self.combo_cuota.clear()
         self.cursor.execute("""
-            SELECT cuotas.id, alumno.nombre, alumno.apellidos, cuotas.mes_cuota
+            SELECT cuotas.id, alumno.nombre, alumno.apellidos, cuotas.mes_cuota, cuotas.importe
             FROM cuotas
             JOIN alumno ON cuotas.id_alumno = alumno.id
             WHERE cuotas.pago_realizado = 0
+            ORDER BY cuotas.mes_cuota, alumno.nombre
         """)
-        for id_cuota, nombre, apellidos, mes_cuota in self.cursor.fetchall():
-            self.combo_cuota.addItem(f"{nombre} {apellidos} - {mes_cuota}", id_cuota)
-
-        self.boton_marcar = QPushButton("Marcar como pagada")
-        self.boton_marcar.clicked.connect(self.marcar_pagada)
-
-        layout = QFormLayout()
-        layout.addRow("Cuota:", self.combo_cuota)
-        layout.addRow(self.boton_marcar)
-
-        contenedor = QWidget()
-        contenedor.setLayout(layout)
-        self.setCentralWidget(contenedor)
+        for id_cuota, nombre, apellidos, mes_cuota, importe in self.cursor.fetchall():
+            texto = f"{nombre} {apellidos}  ·  {formatear_mes(mes_cuota)}  ·  {formatear_euros(importe)}"
+            self.combo_cuota.addItem(texto, id_cuota)
 
     def marcar_pagada(self):
         id_cuota = self.combo_cuota.currentData()
@@ -35,7 +32,15 @@ class VentanaMarcarCuotaPagada(QMainWindow):
             QMessageBox.warning(self, "Aviso", "No hay cuotas pendientes.")
             return
 
-        resultado = marcar_cuota_pagada(self.cursor, id_cuota)   
+        respuesta = QMessageBox.question(
+            self, "Confirmar pago",
+            f"¿Marcar como pagada esta cuota?\n\n{self.combo_cuota.currentText()}",
+            QMessageBox.Yes | QMessageBox.No
+        )
+        if respuesta != QMessageBox.Yes:
+            return
+
+        resultado = marcar_cuota_pagada(self.cursor, id_cuota)
 
         if resultado is True:
             QMessageBox.information(self, "Éxito", "Cuota marcada como pagada correctamente.")

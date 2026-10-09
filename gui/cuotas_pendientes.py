@@ -1,26 +1,38 @@
-from PySide6.QtWidgets import QMainWindow, QTableWidget, QTableWidgetItem
+from PySide6.QtWidgets import QLabel, QTableWidget
+from gui.componentes import Pagina, celda, configurar_tabla, formatear_euros, formatear_mes
 
-class VentanaCuotasPendientes(QMainWindow):
+
+class VentanaCuotasPendientes(Pagina):
     def __init__(self, cursor):
-        super().__init__()
+        super().__init__("Cuotas pendientes", "Cuotas generadas que todavía no se han cobrado.")
         self.cursor = cursor
-        self.setWindowTitle("Cuotas Pendientes")
+
+        self.etiqueta_resumen = QLabel()
+        self.etiqueta_resumen.setObjectName("resumen")
+        self.layout_pagina.addWidget(self.etiqueta_resumen)
 
         self.tabla = QTableWidget()
-        self.tabla.setColumnCount(3)
-        self.tabla.setHorizontalHeaderLabels(["Alumno", "Mes", "Importe (€)"])
+        configurar_tabla(self.tabla, ["Alumno", "Mes", "Importe"])
+        self.layout_pagina.addWidget(self.tabla, 1)
 
+    def recargar(self):
         self.cursor.execute("""
-                                SELECT alumno.nombre || ' ' || alumno.apellidos, cuotas.mes_cuota, cuotas.importe
-                                FROM cuotas
-                                JOIN alumno ON cuotas.id_alumno = alumno.id
-                                WHERE cuotas.pago_realizado = 0
-                                ORDER BY cuotas.mes_cuota
-                            """)
+            SELECT alumno.nombre || ' ' || alumno.apellidos, cuotas.mes_cuota, cuotas.importe
+            FROM cuotas
+            JOIN alumno ON cuotas.id_alumno = alumno.id
+            WHERE cuotas.pago_realizado = 0
+            ORDER BY cuotas.mes_cuota
+        """)
         filas = self.cursor.fetchall()
         self.tabla.setRowCount(len(filas))
-        for fila_idx, fila in enumerate(filas):
-            for columna_idx, valor in enumerate(fila):
-                self.tabla.setItem(fila_idx, columna_idx, QTableWidgetItem(str(valor)))
+        total = 0
+        for fila_idx, (alumno, mes, importe) in enumerate(filas):
+            self.tabla.setItem(fila_idx, 0, celda(alumno))
+            self.tabla.setItem(fila_idx, 1, celda(formatear_mes(mes)))
+            self.tabla.setItem(fila_idx, 2, celda(formatear_euros(importe), a_la_derecha=True))
+            total += importe
 
-        self.setCentralWidget(self.tabla)
+        if filas:
+            self.etiqueta_resumen.setText(f"{len(filas)} cuotas pendientes · {formatear_euros(total)} por cobrar")
+        else:
+            self.etiqueta_resumen.setText("No hay cuotas pendientes. ¡Todo cobrado!")

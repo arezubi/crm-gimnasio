@@ -1,18 +1,11 @@
-from PySide6.QtWidgets import QMainWindow
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from informes.estadisticas import actividad_mas_usada
+from gui.estilo_graficos import PaginaGrafico, dibujar_barras_horizontales
 
-class VentanaActividadMasUsada(QMainWindow):
-    def __init__(self,cursor):
-        super().__init__()
-        self.actividad_mas_usada = actividad_mas_usada(cursor)
-        self.setWindowTitle("Actividad Más Usada")
 
-        self.figura = Figure(figsize=(6, 4))
-        self.ejes = self.figura.add_subplot(111)
-        self.ejes.pie(self.actividad_mas_usada["num_alumnos"], labels=self.actividad_mas_usada["nombre"])
-        self.ejes.set_title("Actividad más usada")
+class VentanaActividadMasUsada(PaginaGrafico):
+    def __init__(self, cursor):
+        super().__init__(cursor, "Actividades más populares", "Alumnos activos inscritos en cada actividad.")
 
-        self.canvas = FigureCanvasQTAgg(self.figura)
-        self.setCentralWidget(self.canvas)
+    def dibujar(self):
+        datos = actividad_mas_usada(self.cursor)
+        dibujar_barras_horizontales(self.ejes, datos["nombre"], datos["num_alumnos"])

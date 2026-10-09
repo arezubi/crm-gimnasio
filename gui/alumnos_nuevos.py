@@ -1,19 +1,16 @@
 from informes.estadisticas import alumnos_nuevos_por_mes
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
-from PySide6.QtWidgets import QMainWindow
+from gui.componentes import MESES_CORTOS
+from gui.estilo_graficos import PaginaGrafico, dibujar_barras
 
-class VentanaAlumnosNuevos(QMainWindow):
-    def __init__(self,cursor):
-        super().__init__()
-        self.alumnos_nuevos = alumnos_nuevos_por_mes(cursor)
-        self.setWindowTitle("Alumnos Nuevos")
 
-        self.figura = Figure(figsize=(6, 4))
-        self.ejes = self.figura.add_subplot(111)
-        self.ejes.bar(self.alumnos_nuevos.index.astype(str), self.alumnos_nuevos.values)
-        self.ejes.set_title("Alumnos nuevos por mes")
-        self.ejes.set_ylabel("Número de alumnos")
+class VentanaAlumnosNuevos(PaginaGrafico):
+    def __init__(self, cursor):
+        super().__init__(cursor, "Altas por mes",
+                         "Alumnos nuevos de cada mes del año seleccionado.", con_selector_anio=True)
 
-        self.canvas = FigureCanvasQTAgg(self.figura)
-        self.setCentralWidget(self.canvas)
+    def dibujar(self):
+        anio = self.anio_seleccionado()
+        altas = alumnos_nuevos_por_mes(self.cursor, anio)
+        por_mes = {str(periodo): total for periodo, total in altas.items()}   # {'2026-08': 3, ...}
+        valores = [por_mes.get(f"{anio}-{mes:02d}", 0) for mes in range(1, 13)]
+        dibujar_barras(self.ejes, MESES_CORTOS, valores)

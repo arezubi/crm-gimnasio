@@ -1,7 +1,8 @@
 import sqlite3
+from config import RUTA_BD
 import bcrypt
 
-conexion = sqlite3.connect("gimnasio.db")
+conexion = sqlite3.connect(RUTA_BD)
 cursor = conexion.cursor()
 
 password = "admin123"   # cámbialo luego por uno de verdad
