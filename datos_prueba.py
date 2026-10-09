@@ -31,6 +31,7 @@ from db.db import (
     registrar_asistencia,
     generar_facturas,
     registrar_usuario,
+    baja_alumno
 )
 
 conexion = sqlite3.connect(RUTA_BD)
@@ -56,13 +57,13 @@ id_marcos = id_ultima_fila("profesor")
 
 
 print("--- Tipos de cuota ---")
-alta_tipo_cuota(cursor, "infantil", 28)
+alta_tipo_cuota(cursor, "Infantil", 28)
 id_infantil = id_ultima_fila("tipo_cuota")
 
-alta_tipo_cuota(cursor, "adulto", 49)
+alta_tipo_cuota(cursor, "Adulto", 49)
 id_adulto = id_ultima_fila("tipo_cuota")
 
-alta_tipo_cuota(cursor, "adulto_2_actividades", 64)
+alta_tipo_cuota(cursor, "Adulto 2 actividades", 64)
 id_adulto_2act = id_ultima_fila("tipo_cuota")
 
 
@@ -76,23 +77,33 @@ id_bjj = id_ultima_fila("actividades")
 alta_actividad(cursor, "MMA", id_carlos)
 id_mma = id_ultima_fila("actividades")
 
-alta_actividad(cursor, "Kickboxing", id_marcos)
-id_kickboxing = id_ultima_fila("actividades")
+alta_actividad(cursor, "Fight-BOX", id_marcos)
+id_fightbox = id_ultima_fila("actividades")
+
+alta_actividad(cursor, "K1", id_carlos)
+id_k1 = id_ultima_fila("actividades")
+
+alta_actividad(cursor, "Clases Mixtas", id_marcos)
+id_clases_mixtas = id_ultima_fila("actividades")
 
 
 print("--- Alumnos ---")
 # Alumnos activos, con fechas de alta en meses distintos para poder ver "alumnos nuevos por mes"
 alta_alumno(cursor, "Ana", "García López", "2000-04-12", "ana@example.com", "600111000", "Madre: 600222000")
 id_ana = id_ultima_fila("alumno")
+cursor.execute("UPDATE alumno SET fecha_alta = ? WHERE id = ?", ("2026-03-10", id_ana,))
 
 alta_alumno(cursor, "Luis", "Gómez Ruiz", "1995-08-23", "luis@example.com", "600333000", "Hermano: 600444000")
 id_luis = id_ultima_fila("alumno")
+cursor.execute("UPDATE alumno SET fecha_alta = ? WHERE id = ?", ("2025-06-01", id_luis,))
 
 alta_alumno(cursor, "Sofía", "Reyes Martín", "2012-09-22", "sofia@example.com", "600555000", "Padre: 600666000")
 id_sofia = id_ultima_fila("alumno")
+cursor.execute("UPDATE alumno SET fecha_alta = ? WHERE id = ?", ("2026-01-07", id_sofia,))
 
 alta_alumno(cursor, "Marta", "Ibáñez Cruz", "2010-03-05", "marta@example.com", "600777000", "Madre: 600888000")
 id_marta = id_ultima_fila("alumno")
+cursor.execute("UPDATE alumno SET fecha_alta = ? WHERE id = ?", ("2025-03-10", id_marta,))
 
 alta_alumno(cursor, "Pablo", "Sánchez Vidal", "1998-01-17", "pablo@example.com", "600999000", "Pareja: 600000111")
 id_pablo = id_ultima_fila("alumno")
@@ -100,15 +111,17 @@ id_pablo = id_ultima_fila("alumno")
 # Alumno dado de baja, para probar que no aparece en listados de activos
 alta_alumno(cursor, "Elena", "Molina Ortiz", "1992-07-30", "elena.m@example.com", "600222111", "Amigo: 600333111")
 id_elena_baja = id_ultima_fila("alumno")
-cursor.execute("UPDATE alumno SET activo = 0 WHERE id = ?", (id_elena_baja,))
+cursor.execute("UPDATE alumno SET fecha_alta = ? WHERE id = ?", ("2025-03-10", id_elena_baja,))
+baja_alumno(cursor, id_elena_baja)
+cursor.execute("UPDATE alumno SET fecha_baja = ? WHERE id = ?", ("2026-10-01", id_elena_baja,))
 conexion.commit()
-
 
 print("--- Inscripciones (algunos alumnos en más de una actividad) ---")
 inscribir_alumno_actividad(cursor, id_ana, id_boxeo)
-inscribir_alumno_actividad(cursor, id_luis, id_bjj)
+inscribir_alumno_actividad(cursor, id_luis, id_k1)
 inscribir_alumno_actividad(cursor, id_luis, id_mma)       # Luis: 2 actividades
-inscribir_alumno_actividad(cursor, id_sofia, id_kickboxing)
+inscribir_alumno_actividad(cursor, id_sofia, id_fightbox)
+inscribir_alumno_actividad(cursor, id_sofia, id_clases_mixtas)
 inscribir_alumno_actividad(cursor, id_marta, id_boxeo)
 inscribir_alumno_actividad(cursor, id_marta, id_bjj)       # Marta: 2 actividades
 inscribir_alumno_actividad(cursor, id_pablo, id_mma)
@@ -159,7 +172,7 @@ registrar_asistencia(cursor, id_luis, id_bjj, "2026-09-02")
 registrar_asistencia(cursor, id_luis, id_mma, "2026-09-04")
 registrar_asistencia(cursor, id_marta, id_boxeo, "2026-09-01")
 registrar_asistencia(cursor, id_marta, id_bjj, "2026-09-05")
-registrar_asistencia(cursor, id_sofia, id_kickboxing, "2026-09-06")
+registrar_asistencia(cursor, id_sofia, id_fightbox, "2026-09-06")
 
 
 print("--- Usuarios (para probar el login) ---")
