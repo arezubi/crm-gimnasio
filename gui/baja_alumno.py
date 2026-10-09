@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QComboBox, QMessageBox
 from db.db import baja_alumno
+from db.consultas import listar_alumnos_activos
 from gui.componentes import FormularioBase
 
 
@@ -15,10 +16,9 @@ class VentanaBajaAlumno(FormularioBase):
 
     def recargar(self):
         self.campo_alumno.clear()
-        self.cursor.execute("SELECT id, nombre, apellidos FROM alumno WHERE activo = 1 ORDER BY nombre")
-        for id_alumno, nombre, apellidos in self.cursor.fetchall():
-            self.campo_alumno.addItem(f"{nombre} {apellidos}", id_alumno)
-
+        for id_alumno, nombre in listar_alumnos_activos(self.cursor):
+            self.campo_alumno.addItem(nombre, id_alumno)
+            
     def dar_de_baja(self):
         alumno_id = self.campo_alumno.currentData()
         if alumno_id is None:

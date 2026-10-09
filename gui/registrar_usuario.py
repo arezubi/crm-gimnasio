@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QComboBox, QLineEdit, QMessageBox
 from db.db import registrar_usuario
+from db.consultas import listar_profesores_activos
 from gui.componentes import FormularioBase, marcar_error
 
 LONGITUD_MINIMA_PASSWORD = 6
@@ -33,9 +34,8 @@ class VentanaRegistrarUsuario(FormularioBase):
     def recargar(self):
         self.campo_profesor.clear()
         self.campo_profesor.addItem("Ninguno (no es profesor)", None)
-        self.cursor.execute("SELECT id, nombre, apellidos FROM profesor WHERE activo = 1 ORDER BY nombre")
-        for id_profesor, nombre, apellidos in self.cursor.fetchall():
-            self.campo_profesor.addItem(f"{nombre} {apellidos}", id_profesor)
+        for id_profesor, nombre in listar_profesores_activos(self.cursor):
+            self.campo_profesor.addItem(nombre, id_profesor)
 
     def limpiar(self):
         self.limpiar_campos([self.campo_nombre, self.campo_email, self.campo_password])

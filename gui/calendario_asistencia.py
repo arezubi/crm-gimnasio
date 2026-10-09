@@ -12,6 +12,7 @@ from gui.componentes import (
     MESES, Pagina, celda, configurar_tabla, crear_boton, formatear_fecha, plural, refrescar_estilo,
 )
 from informes.estadisticas import asistencia_por_alumno, asistencias_del_mes
+from db.consultas import listar_actividades, listar_alumnos_activos
 
 # Un color por actividad (se asigna según su id). Texto oscuro encima para que se lea bien.
 COLORES_ACTIVIDAD = ["#1fb6e8", "#ff8a7a", "#3fb950", "#c39bff", "#f2c94c", "#ff9f43"]
@@ -161,19 +162,17 @@ class VentanaCalendarioAsistencia(Pagina):
 
     def recargar(self):
         """Recarga los desplegables (manteniendo lo elegido) y vuelve a pintar el mes."""
-        self.rellenar_combo(self.combo_alumno, "Todos los alumnos",
-                            "SELECT id, nombre || ' ' || apellidos FROM alumno WHERE activo = 1 ORDER BY nombre")
-        self.rellenar_combo(self.combo_actividad, "Todas las actividades",
-                            "SELECT id, nombre FROM actividades ORDER BY nombre")
+        self.rellenar_combo(self.combo_alumno, "Todos los alumnos", listar_alumnos_activos(self.cursor))
+        
+        self.rellenar_combo(self.combo_actividad, "Todas las actividades", listar_actividades(self.cursor))             
         self.refrescar()
 
-    def rellenar_combo(self, combo, texto_todos, consulta):
+    def rellenar_combo(self, combo, texto_todos, elementos):
         seleccionado = combo.currentData()
         combo.blockSignals(True)        # que no se repinte el calendario con cada addItem
         combo.clear()
         combo.addItem(texto_todos, None)
-        self.cursor.execute(consulta)
-        for id_elemento, nombre in self.cursor.fetchall():
+        for id_elemento, nombre in elementos:
             combo.addItem(nombre, id_elemento)
         combo.setCurrentIndex(max(combo.findData(seleccionado), 0))
         combo.blockSignals(False)

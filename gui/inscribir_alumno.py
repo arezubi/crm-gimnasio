@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QComboBox, QMessageBox
 from db.db import inscribir_alumno_actividad
+from db.consultas import listar_alumnos_activos, listar_actividades
 from gui.componentes import FormularioBase
 
 
@@ -16,13 +17,12 @@ class VentanaInscribirAlumno(FormularioBase):
 
     def recargar(self):
         self.combo_alumno.clear()
-        self.cursor.execute("SELECT id, nombre, apellidos FROM alumno WHERE activo = 1 ORDER BY nombre")
-        for id_alumno, nombre, apellidos in self.cursor.fetchall():
-            self.combo_alumno.addItem(f"{nombre} {apellidos}", id_alumno)
+        
+        for id_alumno, nombre in listar_alumnos_activos(self.cursor):
+            self.combo_alumno.addItem(nombre, id_alumno)
 
         self.combo_actividad.clear()
-        self.cursor.execute("SELECT id, nombre FROM actividades ORDER BY nombre")
-        for id_actividad, nombre in self.cursor.fetchall():
+        for id_actividad, nombre in listar_actividades(self.cursor):
             self.combo_actividad.addItem(nombre, id_actividad)
 
     def inscribir_alumno(self):

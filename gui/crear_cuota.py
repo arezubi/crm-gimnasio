@@ -1,6 +1,7 @@
 from datetime import date
 from PySide6.QtWidgets import QComboBox, QLabel, QMessageBox
 from db.db import crear_cuota_mensual
+from db.consultas import listar_alumnos_activos, listar_tipos_cuota
 from gui.componentes import MESES, FormularioBase, formatear_euros
 
 
@@ -36,14 +37,13 @@ class VentanaCrearCuota(FormularioBase):
 
     def recargar(self):
         self.combo_alumno.clear()
-        self.cursor.execute("SELECT id, nombre, apellidos FROM alumno WHERE activo = 1 ORDER BY nombre")
-        for id_alumno, nombre, apellidos in self.cursor.fetchall():
-            self.combo_alumno.addItem(f"{nombre} {apellidos}", id_alumno)
+        for id_alumno, nombre in listar_alumnos_activos(self.cursor):
+            self.combo_alumno.addItem(nombre, id_alumno)
 
         self.combo_cuota.clear()
         self.precios = {}
-        self.cursor.execute("SELECT id, nombre, precio FROM tipo_cuota ORDER BY nombre")
-        for id_cuota, nombre, precio in self.cursor.fetchall():
+    
+        for id_cuota, nombre, precio in listar_tipos_cuota(self.cursor):
             self.precios[id_cuota] = precio
             self.combo_cuota.addItem(nombre, id_cuota)
         self.actualizar_importe()

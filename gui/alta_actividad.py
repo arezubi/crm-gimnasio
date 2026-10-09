@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QComboBox, QLineEdit, QMessageBox
 from db.db import alta_actividad
+from db.consultas import listar_profesores_activos
 from gui.componentes import FormularioBase
 
 
@@ -18,9 +19,8 @@ class VentanaAltaActividad(FormularioBase):
 
     def recargar(self):
         self.combo_profesor.clear()
-        self.cursor.execute("SELECT id, nombre, apellidos FROM profesor WHERE activo = 1 ORDER BY nombre")
-        for id_profesor, nombre, apellidos in self.cursor.fetchall():
-            self.combo_profesor.addItem(f"{nombre} {apellidos}", id_profesor)
+        for id_profesor, nombre in listar_profesores_activos(self.cursor):
+            self.combo_profesor.addItem(nombre, id_profesor) 
 
     def guardar_actividad(self):
         valores = self.leer_obligatorios([(self.campo_nombre, "Nombre")])
