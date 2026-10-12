@@ -92,3 +92,8 @@ def id_factura_de_cuota(cursor, id_cuota):
     cursor.execute("SELECT id FROM factura WHERE id_cuota = ?", (id_cuota,))
     resultado = cursor.fetchone()
     return resultado[0] if resultado else None
+
+def obtener_usuario(cursor, email):
+    """Devuelve el password_hash, rol y nombre del usuario con ese email, o None si no existe."""
+    cursor.execute("SELECT password, rol, nombre FROM usuarios WHERE email = ?", (email,))
+    return cursor.fetchone()

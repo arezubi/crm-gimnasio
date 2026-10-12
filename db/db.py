@@ -400,34 +400,6 @@ def registrar_usuario(cursor, nombre, email, password, rol, id_profesor=None):
         cursor.connection.rollback()
         return False
 
-def verificar_login(cursor, email, password):
-    """
-    Función para comprobar el email y la contraseña de un usuario.
-
-    Retorna el rol ('admin' u 'operador') si las credenciales son válidas,
-    None en caso contrario.
-    """
-    try:
-        cursor.execute("SELECT password, rol FROM usuarios WHERE email = ?", (email,))
-        resultado = cursor.fetchone()
-
-        if resultado is None:
-            print("Usuario no encontrado.")
-            return None
-
-        hashed_password, rol = resultado
-
-        if bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8')):
-            print("Inicio de sesión exitoso.")
-            return rol
-        else:
-            print("Contraseña incorrecta.")
-            return None
-
-    except Exception as e:
-        print(f"Error al verificar el inicio de sesión: {e}")
-        return None
-
 def alta_tipo_cuota(cursor, nombre, precio):
     """
     Función para dar de alta un nuevo tipo de cuota en la base de datos.

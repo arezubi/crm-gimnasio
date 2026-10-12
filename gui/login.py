@@ -2,9 +2,9 @@ from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QLineEdit, QMainWindow, QVBoxLayout, QWidget
 from config import RUTA_LOGO
-from db.db import verificar_login
 from gui.componentes import crear_boton, marcar_error
 from gui.ventana_principal import VentanaPrincipal
+from logica.autenticacion import iniciar_sesion
 
 
 class VentanaLogin(QMainWindow):
@@ -85,9 +85,9 @@ class VentanaLogin(QMainWindow):
         email = self.campo_email.text().strip()
         password = self.campo_password.text()
 
-        rol = verificar_login(self.cursor, email, password)
+        resultado = iniciar_sesion(self.cursor, email, password)
 
-        if rol is None:
+        if resultado is None:
             self.etiqueta_error.setText("Email o contraseña incorrectos.")
             self.etiqueta_error.show()
             marcar_error(self.campo_email, True)
@@ -96,8 +96,7 @@ class VentanaLogin(QMainWindow):
             self.campo_password.setFocus()
             return
 
-        self.cursor.execute("SELECT nombre FROM usuarios WHERE email = ?", (email,))
-        nombre_usuario = self.cursor.fetchone()[0]
+        rol, nombre_usuario = resultado
 
         self.ventana_principal = VentanaPrincipal(self.cursor, rol, nombre_usuario)
         self.ventana_principal.show()
