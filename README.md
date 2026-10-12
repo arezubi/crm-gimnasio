@@ -9,12 +9,11 @@ Tecnologías: Python 3, PySide6, SQLite, Pandas, Matplotlib y bcrypt.
 - Login con roles (admin y operador).
 - Alta, edición y baja de alumnos; alta y baja de profesores.
 - Actividades, inscripciones y registro de asistencia.
-- Tipos de cuota, cuotas mensuales y marcar cuotas pagadas. Generación en bloque, haciendo uso de la última cuota pagada. En caso de no tener, se gnerea manualmente. 
+- Tipos de cuota, cuotas mensuales y marcar cuotas pagadas. Generación de las cuotas del mes de todos los alumnos activos con un botón: a cada uno se le asigna el mismo tipo que su última cuota. Los alumnos sin ninguna cuota anterior se indican para crearla a mano.
 - Facturas en PDF (carpeta `facturas/`) y listado de facturas emitidas para volver a abrirlas.
 - Calendario mensual de asistencia, filtrable por alumno y actividad, con resumen por alumno.
 - Listado de alumnos con buscador y estado de la cuota del mes (pagada / pendiente / sin cuota).
-- Dashboard con alumnos activos, altas del mes, ingresos del mes, cuotas pendientes,
-  asisitencia del mes, gráfico de los últimos 6 meses y cuotas pendientes más antiguas.
+- Dashboard con alumnos activos, altas del mes, ingresos mensuales (total y desglose por tipo de cuota: infantil, adulto y adulto 2 actividades), cuotas pendientes, asistencias del mes, actividades más utilizadas, gráfico de los últimos 6 meses y cuotas pendientes más antiguas.
 - Estadísticas: ingresos y altas por mes (eligiendo el año) y por año, actividades más populares.
 
 ## Criterios
@@ -70,7 +69,7 @@ se llaman directamente desde `gui` a `db`. Las que tienen reglas pasan siempre p
   - `estilo_graficos.py`: tema oscuro de los gráficos y clase base `PaginaGrafico`.
 - `informes/`: estadísticas (leen la base de datos directamente, solo lectura) y generación del PDF de las facturas (`factura_pdf.py`).
 - `logica/`: reglas del negocio.
-  - `autenticacion.py`: contraseñas cifradas con bcrypt, login sin revelar qué dato falla
+  - `autenticacion.py`: contraseñas cifradas con bcrypt, login sin revelar qué dato falla.
   - `validaciones.py`: formato de email y longitud mínima de contraseña.
   - `asistencia.py`: solo asisten los alumnos inscritos.
   - `facturas.py`: solo se facturan cuotas pagadas; numeración F-AAAA-NNNN.
