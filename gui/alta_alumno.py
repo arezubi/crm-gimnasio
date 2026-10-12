@@ -2,6 +2,7 @@ from PySide6.QtCore import QDate
 from PySide6.QtWidgets import QDateEdit, QLineEdit, QMessageBox
 from db.db import alta_alumno
 from gui.componentes import FormularioBase, marcar_error
+from logica.validaciones import email_valido
 
 
 class VentanaAltaAlumno(FormularioBase):
@@ -45,7 +46,7 @@ class VentanaAltaAlumno(FormularioBase):
             return
         nombre, apellidos, email, telefono, contacto_emergencia = valores
 
-        if "@" not in email:
+        if not email_valido(email):
             marcar_error(self.campo_email, True)
             QMessageBox.warning(self, "Email no válido", "Revisa el email del alumno.")
             return

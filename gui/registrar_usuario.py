@@ -2,8 +2,7 @@ from PySide6.QtWidgets import QComboBox, QLineEdit, QMessageBox
 from db.db import registrar_usuario
 from db.consultas import listar_profesores_activos
 from gui.componentes import FormularioBase, marcar_error
-
-LONGITUD_MINIMA_PASSWORD = 6
+from logica.validaciones import email_valido, password_valida, LONGITUD_MINIMA_PASSWORD
 
 
 class VentanaRegistrarUsuario(FormularioBase):
@@ -52,11 +51,11 @@ class VentanaRegistrarUsuario(FormularioBase):
             return
         nombre, email, password = valores
 
-        if "@" not in email:
+        if not email_valido(email):
             marcar_error(self.campo_email, True)
             QMessageBox.warning(self, "Email no válido", "Revisa el email del usuario.")
             return
-        if len(password) < LONGITUD_MINIMA_PASSWORD:
+        if not password_valida(password):
             marcar_error(self.campo_password, True)
             QMessageBox.warning(self, "Contraseña demasiado corta",
                                 f"La contraseña debe tener al menos {LONGITUD_MINIMA_PASSWORD} caracteres.")
