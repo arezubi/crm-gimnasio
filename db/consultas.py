@@ -129,3 +129,12 @@ def ultimo_tipo_cuota(cursor, id_alumno):
     ''',(id_alumno,))
     resultado = cursor.fetchone()
     return resultado[0] if resultado else None
+
+def obtener_alumno(cursor, id_alumno):
+    """Devuelve (nombre, apellidos, fecha_cumpleaños, email, teléfono, contacto_emergencia) del alumno o None si no existe."""
+    cursor.execute("""
+        SELECT nombre, apellidos, fecha_cumpleaños, email, telefono, contacto_emergencia
+        FROM alumno
+        WHERE id = ?
+    """, (id_alumno,))
+    return cursor.fetchone()

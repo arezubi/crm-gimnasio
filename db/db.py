@@ -381,3 +381,41 @@ def alta_tipo_cuota(cursor, nombre, precio):
         print(f"Error al dar de alta el tipo de cuota: {e}")
         cursor.connection.rollback()
         return False
+
+def actualizar_alumno(cursor, id_alumno, nombre, apellidos, fecha_cumpleaños, email, telefono, contacto_emergencia):
+    """
+    Función para actualizar la información de un alumno en la base de datos.
+
+    Parámetros:
+    cursor: Objeto cursor de la base de datos.
+    id_alumno: ID del alumno a actualizar.
+    nombre: Nuevo nombre del alumno (opcional).
+    apellidos: Nuevos apellidos del alumno (opcional).
+    fecha_cumpleaños: Nueva fecha de cumpleaños del alumno (opcional).
+    email: Nuevo correo electrónico del alumno (opcional).
+    telefono: Nuevo número de teléfono del alumno (opcional).
+    contacto_emergencia: Nueva información de contacto de emergencia (opcional).
+
+    Retorna:
+    True si la operación fue exitosa, False en caso contrario o 'duplicado' si el email ya existe para otro alumno.
+    """
+    
+    try:
+        cursor.execute("""
+            UPDATE alumno
+            SET nombre = ?, apellidos = ?, fecha_cumpleaños = ?, email = ?, telefono = ?, contacto_emergencia = ?
+            WHERE id = ?
+        """, (nombre, apellidos, fecha_cumpleaños, email, telefono, contacto_emergencia, id_alumno))
+
+    except sqlite3.IntegrityError as e:
+            cursor.connection.rollback()
+            if "UNIQUE" in str(e):
+                return "duplicado"
+            return False  
+    except Exception as e:
+        print(f"Error al dar de alta al alumno: {e}")
+        cursor.connection.rollback()
+        return False
+
+    cursor.connection.commit()
+    return True

@@ -7,6 +7,7 @@ from PySide6.QtWidgets import (
 from config import RUTA_LOGO
 from gui.componentes import crear_boton
 from gui.dashboard import PanelDashboard
+from gui.editar_alumno import VentanaEditarAlumno
 from gui.listado_alumnos import VentanaListadoAlumnos
 from gui.alta_alumno import VentanaAltaAlumno
 from gui.baja_alumno import VentanaBajaAlumno
@@ -77,6 +78,7 @@ class VentanaPrincipal(QMainWindow):
             ("Listado", VentanaListadoAlumnos(cursor)),
             ("Alta", VentanaAltaAlumno(cursor)),
             ("Baja", VentanaBajaAlumno(cursor)),
+            ("Editar", VentanaEditarAlumno(cursor)),
         ])
         self.agregar_seccion("Profesores", [
             ("Alta", VentanaAltaProfesor(cursor)),
