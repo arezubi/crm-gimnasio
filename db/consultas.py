@@ -111,3 +111,9 @@ def obtener_estado_cuota(cursor, id_cuota):
     """Devuelve (id_alumno, pagada) o None si la cuota no existe."""
     cursor.execute("SELECT id_alumno, pago_realizado FROM cuotas WHERE id = ?", (id_cuota,))
     return cursor.fetchone()  
+
+def obtener_precio_tipo_cuota(cursor, id_tipo_cuota):
+    """Devuelve el precio del tipo de cuota, o None si no existe."""
+    cursor.execute("SELECT precio FROM tipo_cuota WHERE id = ?", (id_tipo_cuota,))
+    resultado = cursor.fetchone()
+    return resultado[0] if resultado else None

@@ -1,6 +1,6 @@
 from datetime import date
 from PySide6.QtWidgets import QComboBox, QLabel, QMessageBox
-from db.db import crear_cuota_mensual
+from logica.cuotas import crear_cuota_mensual
 from db.consultas import listar_alumnos_activos, listar_tipos_cuota
 from gui.componentes import MESES, FormularioBase, formatear_euros
 

@@ -193,30 +193,26 @@ def inscribir_alumno_actividad(cursor, alumno_id, actividad_id):
         cursor.connection.rollback()
         return False
 
-def crear_cuota_mensual(cursor, id_alumno, id_tipo_cuota, mes_cuota):
+def insertar_cuota(cursor, id_alumno, id_tipo_cuota, mes_cuota, importe):
     """
-    Función para crear una cuota mensual para un alumno.
+    Función para insertar una cuota mensual en la base de datos.
 
     Parámetros:
     cursor: Objeto cursor de la base de datos.
     id_alumno: ID del alumno para el cual se creará la cuota.
     id_tipo_cuota: ID del tipo de cuota.
     mes_cuota: Mes al que corresponde la cuota.
+    importe: Importe de la cuota.
 
     Retorna:
-    True, False, 'duplicado' o 'no existe'
+    True, False, o 'duplicado'
     """
     try:
-        cursor.execute("SELECT precio FROM tipo_cuota WHERE id = ?", (id_tipo_cuota,))
-        resultado = cursor.fetchone()
-        if resultado is None:
-            return "no existe"
-        precio = resultado[0]
         # Insertar la cuota mensual en la tabla correspondiente
         cursor.execute("""
             INSERT INTO cuotas (id_alumno, id_tipo_cuota, pago_realizado, mes_cuota, importe)
             VALUES (?, ?, ?, ?, ?)
-        """, (id_alumno, id_tipo_cuota, 0, mes_cuota, precio))
+        """, (id_alumno, id_tipo_cuota, 0, mes_cuota, importe))
         
         # Confirmar los cambios en la base de datos
         cursor.connection.commit()
@@ -230,42 +226,25 @@ def crear_cuota_mensual(cursor, id_alumno, id_tipo_cuota, mes_cuota):
         cursor.connection.rollback()
         return False
 
-def marcar_cuota_pagada(cursor, id_cuota):
+def guardar_pago(cursor, id_cuota, fecha_pago):
     """
-    Función para marcar una cuota como pagada.
-
-    Parámetros:
-    cursor: Objeto cursor de la base de datos.
-    id_cuota: ID de la cuota a marcar como pagada.
+    Marca una cuota como pagada en la base de datos con la fecha indicada.
+    No comprueba nada: eso lo hace logica/cuotas.py.
 
     Retorna:
-    True, False, 'ya pagada' o 'no existe'
+    True o False
     """
-
     try:
-        cursor.execute("SELECT pago_realizado FROM cuotas WHERE id = ?", (id_cuota,))
-        resultado = cursor.fetchone()
-        if resultado is None:
-            return "no existe"
-        if resultado[0] == 1:
-            return "ya pagada"
-        
-        # Actualizar el estado de la cuota a pagada
-        hoy = date.today().isoformat()  
         cursor.execute("""
             UPDATE cuotas SET pago_realizado = 1, fecha_pago = ? WHERE id = ?
-        """, (hoy, id_cuota))
-        
-        # Confirmar los cambios en la base de datos
+        """, (fecha_pago, id_cuota))
         cursor.connection.commit()
-        print("Cuota marcada como pagada exitosamente.")
         return True
-    
     except Exception as e:
-        # Manejar cualquier error que ocurra durante la actualización
-        print(f"Error al marcar la cuota como pagada: {e}")
+        print(f"Error al guardar el pago: {e}")
         cursor.connection.rollback()
         return False
+
 
 def registrar_asistencia(cursor, id_alumno, id_actividad, fecha_asistencia=None):
     """

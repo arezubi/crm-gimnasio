@@ -26,13 +26,12 @@ from db.db import (
     alta_actividad,
     alta_tipo_cuota,
     inscribir_alumno_actividad,
-    crear_cuota_mensual,
-    marcar_cuota_pagada,
     baja_alumno
 )
 from logica.autenticacion import crear_usuario
 from logica.asistencia import registrar_asistencia
 from logica.facturas import facturar_cuota
+from logica.cuotas import crear_cuota_mensual, marcar_cuota_pagada
 
 conexion = sqlite3.connect(RUTA_BD)
 conexion.execute("PRAGMA foreign_keys = ON")

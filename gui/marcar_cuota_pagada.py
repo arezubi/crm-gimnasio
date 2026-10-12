@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QComboBox, QMessageBox
-from db.db import marcar_cuota_pagada
+from logica.cuotas import marcar_cuota_pagada
 from db.consultas import listar_cuotas_pendientes
 from gui.componentes import FormularioBase, formatear_euros, formatear_mes
 
