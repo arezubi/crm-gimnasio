@@ -28,11 +28,11 @@ from db.db import (
     inscribir_alumno_actividad,
     crear_cuota_mensual,
     marcar_cuota_pagada,
-    generar_facturas,
     baja_alumno
 )
 from logica.autenticacion import crear_usuario
 from logica.asistencia import registrar_asistencia
+from logica.facturas import facturar_cuota
 
 conexion = sqlite3.connect(RUTA_BD)
 conexion.execute("PRAGMA foreign_keys = ON")
@@ -157,10 +157,10 @@ crear_cuota_mensual(cursor, id_pablo, id_adulto, "2026-09-01")
 
 print("--- Facturas: solo para algunas cuotas pagadas, para poder ver el listado de 'cuotas pagadas sin facturar' ---")
 cursor.execute("SELECT id FROM cuotas WHERE id_alumno = ? AND mes_cuota = '2026-08-01'", (id_ana,))
-generar_facturas(cursor, cursor.fetchone()[0])
+facturar_cuota(cursor, cursor.fetchone()[0])
 
 cursor.execute("SELECT id FROM cuotas WHERE id_alumno = ? AND mes_cuota = '2026-09-01'", (id_ana,))
-generar_facturas(cursor, cursor.fetchone()[0])
+facturar_cuota(cursor, cursor.fetchone()[0])
 # La cuota de agosto de Luis se queda pagada pero SIN factura a propósito
 
 

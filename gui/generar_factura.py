@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QComboBox, QMessageBox
-from db.db import generar_facturas
+from logica.facturas import facturar_cuota
 from gui.componentes import FormularioBase, abrir_archivo, formatear_euros, formatear_mes
 from informes.factura_pdf import crear_pdf_factura
 from db.consultas import id_factura_de_cuota, listar_cuotas_facturables
@@ -28,7 +28,7 @@ class VentanaGenerarFactura(FormularioBase):
             QMessageBox.warning(self, "Aviso", "No hay cuotas pagadas pendientes de facturar.")
             return
 
-        resultado = generar_facturas(self.cursor, id_cuota_seleccionada)
+        resultado = facturar_cuota(self.cursor, id_cuota_seleccionada)
 
         if resultado is True:
             self.combo_cuota.removeItem(self.combo_cuota.currentIndex())

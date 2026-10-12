@@ -106,3 +106,8 @@ def esta_inscrito(cursor, id_alumno, id_actividad):
         WHERE id_alumno = ? AND id_actividades = ?
     """, (id_alumno, id_actividad))
     return cursor.fetchone() is not None
+
+def obtener_estado_cuota(cursor, id_cuota):
+    """Devuelve (id_alumno, pagada) o None si la cuota no existe."""
+    cursor.execute("SELECT id_alumno, pago_realizado FROM cuotas WHERE id = ?", (id_cuota,))
+    return cursor.fetchone()  

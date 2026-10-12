@@ -8,12 +8,7 @@ from PySide6.QtGui import QPageLayout, QPageSize, QPdfWriter, QTextDocument
 
 from config import CARPETA_FACTURAS, DATOS_GIMNASIO
 from gui.componentes import MESES, formatear_euros, formatear_fecha
-
-
-def numero_factura(id_factura, fecha_factura):
-    """id 3 del año 2026 -> 'F-2026-0003'"""
-    return f"F-{fecha_factura[:4]}-{id_factura:04d}"
-
+from logica.facturas import numero_factura
 
 def datos_factura(cursor, id_factura):
     cursor.execute("""

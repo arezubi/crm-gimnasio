@@ -5,8 +5,9 @@ from gui.componentes import (
     Pagina, abrir_archivo, celda, configurar_tabla, crear_boton,
     formatear_euros, formatear_fecha, formatear_mes, plural,
 )
-from informes.factura_pdf import numero_factura, ruta_pdf_existente
+from informes.factura_pdf import ruta_pdf_existente
 from db.consultas import listar_facturas
+from logica.facturas import numero_factura
 
 
 class VentanaListadoFacturas(Pagina):

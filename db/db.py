@@ -303,48 +303,30 @@ def registrar_asistencia(cursor, id_alumno, id_actividad, fecha_asistencia=None)
         cursor.connection.rollback()
         return False
 
-def generar_facturas(cursor, id_cuota, fecha_factura=None):
+def insertar_factura(cursor, id_cuota, id_alumno, fecha_factura):
     """
-    Función para generar facturas para una cuota específica.
+    Función para insertar una factura en la base de datos.
 
     Parámetros:
     cursor: Objeto cursor de la base de datos.
     id_cuota: ID de la cuota para la cual se generarán las facturas.
-    fecha_factura: Fecha de la factura (opcional, por defecto es hoy).
+    id_alumno: ID del alumno al que pertenece la cuota.
+    fecha_factura: Fecha de la factura.
 
     Retorna:
-    True, False, 'duplicado', 'no pagada' o 'no existe'
+    True, False, o 'duplicado'
     """
-    if fecha_factura is None:
-        fecha_factura = date.today().isoformat()
-    
     try:
-        cursor.execute("SELECT id_alumno, pago_realizado FROM cuotas WHERE id = ?", (id_cuota,))
-        resultado = cursor.fetchone()
-        if resultado is None:
-            print("No se encontró la cuota especificada.")
-            return "no existe"
-        if resultado[1] == 0:
-            print("La cuota no ha sido pagada. No se puede generar la factura.")
-            return "no pagada"
-        if resultado[1] == 1:
-            print("La cuota ya ha sido pagada. Se puede generar la factura.")
-
-        id_alumno = resultado[0]
-        # Insertar la factura en la tabla correspondiente
         cursor.execute("""
             INSERT INTO factura (id_alumno, id_cuota, fecha_factura)
             VALUES (?, ?, ?)
         """, (id_alumno, id_cuota, fecha_factura))
-        
-        # Confirmar los cambios en la base de datos
         cursor.connection.commit()
-        print("Factura generada exitosamente.")
         return True
     except sqlite3.IntegrityError:
-        print("Ya existe una factura para esta cuota.")
         cursor.connection.rollback()
         return "duplicado"
+
     except Exception as e:
         # Manejar cualquier error que ocurra durante la generación de la factura
         print(f"Error al generar la factura: {e}")
