@@ -6,6 +6,7 @@ from gui.componentes import (
     formatear_euros, formatear_fecha, formatear_mes, plural,
 )
 from informes.factura_pdf import numero_factura, ruta_pdf_existente
+from db.consultas import listar_facturas
 
 
 class VentanaListadoFacturas(Pagina):
@@ -28,17 +29,7 @@ class VentanaListadoFacturas(Pagina):
         self.layout_pagina.addWidget(self.tabla, 1)
 
     def recargar(self):
-        self.cursor.execute("""
-            SELECT factura.id, factura.fecha_factura, alumno.nombre || ' ' || alumno.apellidos,
-                   tipo_cuota.nombre, cuotas.mes_cuota, cuotas.importe
-            FROM factura
-            JOIN cuotas ON factura.id_cuota = cuotas.id
-            JOIN alumno ON factura.id_alumno = alumno.id
-            JOIN tipo_cuota ON cuotas.id_tipo_cuota = tipo_cuota.id
-            ORDER BY factura.id DESC
-        """)
-        filas = self.cursor.fetchall()
-
+        filas = listar_facturas(self.cursor)
         self.tabla.setRowCount(len(filas))
         total = 0
         for fila_idx, (id_factura, fecha, alumno, tipo, mes, importe) in enumerate(filas):

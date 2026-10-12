@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QComboBox, QMessageBox
 from db.db import marcar_cuota_pagada
+from db.consultas import listar_cuotas_pendientes
 from gui.componentes import FormularioBase, formatear_euros, formatear_mes
 
 
@@ -14,15 +15,9 @@ class VentanaMarcarCuotaPagada(FormularioBase):
 
     def recargar(self):
         self.combo_cuota.clear()
-        self.cursor.execute("""
-            SELECT cuotas.id, alumno.nombre, alumno.apellidos, cuotas.mes_cuota, cuotas.importe
-            FROM cuotas
-            JOIN alumno ON cuotas.id_alumno = alumno.id
-            WHERE cuotas.pago_realizado = 0
-            ORDER BY cuotas.mes_cuota, alumno.nombre
-        """)
-        for id_cuota, nombre, apellidos, mes_cuota, importe in self.cursor.fetchall():
-            texto = f"{nombre} {apellidos}  ·  {formatear_mes(mes_cuota)}  ·  {formatear_euros(importe)}"
+        filas = listar_cuotas_pendientes(self.cursor)
+        for id_cuota, nombre, mes_cuota, importe in filas:
+            texto = f"{nombre}  ·  {formatear_mes(mes_cuota)}  ·  {formatear_euros(importe)}"
             self.combo_cuota.addItem(texto, id_cuota)
 
     def marcar_pagada(self):

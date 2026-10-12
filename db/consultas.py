@@ -38,3 +38,57 @@ def listar_tipos_cuota(cursor):
         ORDER BY nombre
     """)
     return cursor.fetchall()
+
+def listar_cuotas_pendientes(cursor):
+    """Devuelve [(id_cuota, nombre y apellidos, mes_cuota, importe), ...] de las cuotas pendientes de pago."""
+    cursor.execute("""
+        SELECT cuotas.id, alumno.nombre || ' ' || alumno.apellidos, cuotas.mes_cuota, cuotas.importe
+        FROM cuotas
+        JOIN alumno ON cuotas.id_alumno = alumno.id
+        WHERE cuotas.pago_realizado = 0
+        ORDER BY cuotas.mes_cuota, alumno.nombre
+    """)
+    return cursor.fetchall()
+
+def listar_facturas(cursor):
+    """Devuelve [(id_factura, fecha, nombre y apellidos, tipo_cuota, mes_cuota, importe), ...] las facturas emitidas."""
+    cursor.execute("""
+        SELECT factura.id, factura.fecha_factura, alumno.nombre || ' ' || alumno.apellidos,
+            tipo_cuota.nombre, cuotas.mes_cuota, cuotas.importe
+        FROM factura
+        JOIN cuotas ON factura.id_cuota = cuotas.id
+        JOIN alumno ON factura.id_alumno = alumno.id
+        JOIN tipo_cuota ON cuotas.id_tipo_cuota = tipo_cuota.id
+        ORDER BY factura.id DESC
+    """)
+    return cursor.fetchall()
+
+def listar_alumnos_con_cuotas(cursor, mes):
+    """Devuelve [(nombre, apellidos, email, teléfono, fecha_alta, pagada), ...] de los alumnos activos y el estado de su cuota de un mes dado."""
+    cursor.execute("""
+        SELECT alumno.nombre, alumno.apellidos, alumno.email, alumno.telefono,
+            alumno.fecha_alta, cuotas.pago_realizado
+        FROM alumno
+        LEFT JOIN cuotas ON cuotas.id_alumno = alumno.id AND cuotas.mes_cuota = ?
+        WHERE alumno.activo = 1
+        ORDER BY alumno.nombre, alumno.apellidos
+    """, (mes, ))
+    return cursor.fetchall()
+
+def listar_cuotas_facturables(cursor):
+    """Devuelve [(id_cuota, nombre y apellidos, mes_cuota, importe), ...] de las cuotas pagadas que aún no tienen factura."""
+    cursor.execute("""
+        SELECT cuotas.id, alumno.nombre || ' ' || alumno.apellidos, cuotas.mes_cuota, cuotas.importe
+        FROM cuotas
+        JOIN alumno ON cuotas.id_alumno = alumno.id
+        WHERE cuotas.pago_realizado = 1
+        AND cuotas.id NOT IN (SELECT id_cuota FROM factura)
+        ORDER BY cuotas.mes_cuota, alumno.nombre
+    """)
+    return cursor.fetchall()
+
+def id_factura_de_cuota(cursor, id_cuota):
+    """Devuelve el id de la factura asociada a una cuota, o None si no existe."""
+    cursor.execute("SELECT id FROM factura WHERE id_cuota = ?", (id_cuota,))
+    resultado = cursor.fetchone()
+    return resultado[0] if resultado else None

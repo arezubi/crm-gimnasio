@@ -2,6 +2,7 @@ from datetime import date
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QTableWidget
 from gui.componentes import MESES, Pagina, celda, configurar_tabla, formatear_fecha
+from db.consultas import listar_alumnos_con_cuotas
 
 COLOR_PAGADA = QColor("#3fb950")
 COLOR_PENDIENTE = QColor("#e5484d")
@@ -40,15 +41,7 @@ class VentanaListadoAlumnos(Pagina):
             f"Cuota de {MESES[hoy.month - 1]}")
 
         # LEFT JOIN: también salen los alumnos que todavía no tienen cuota este mes
-        self.cursor.execute("""
-            SELECT alumno.nombre, alumno.apellidos, alumno.email, alumno.telefono,
-                   alumno.fecha_alta, cuotas.pago_realizado
-            FROM alumno
-            LEFT JOIN cuotas ON cuotas.id_alumno = alumno.id AND cuotas.mes_cuota = ?
-            WHERE alumno.activo = 1
-            ORDER BY alumno.nombre, alumno.apellidos
-        """, (mes_actual,))
-        filas = self.cursor.fetchall()
+        filas = listar_alumnos_con_cuotas(self.cursor, mes_actual)
 
         pagadas = 0
         self.tabla.setRowCount(len(filas))
