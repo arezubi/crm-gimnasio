@@ -1,6 +1,6 @@
 from datetime import date
 from PySide6.QtWidgets import QComboBox, QLabel, QMessageBox
-from logica.cuotas import crear_cuota_mensual
+from logica.cuotas import crear_cuota_mensual, generar_cuotas_del_mes
 from db.consultas import listar_alumnos_activos, listar_tipos_cuota
 from gui.componentes import MESES, FormularioBase, formatear_euros
 
@@ -34,6 +34,8 @@ class VentanaCrearCuota(FormularioBase):
         self.agregar_campo("Mes", self.combo_mes)
         self.agregar_campo("Año", self.combo_año)
         self.agregar_boton("Crear cuota", self.crear_cuota)
+        self.agregar_boton("Generar cuotas de todos", self.generar_todas, tipo="secundario")
+
 
     def recargar(self):
         self.combo_alumno.clear()
@@ -68,3 +70,18 @@ class VentanaCrearCuota(FormularioBase):
             QMessageBox.warning(self, "Error", "Ese alumno ya tiene una cuota para ese mes.")
         else:
             QMessageBox.warning(self, "Error", "Error al crear la cuota.")
+
+    def generar_todas(self):
+        mes_cuota = f"{self.combo_año.currentData()}-{self.combo_mes.currentData():02d}-01"
+        nombre_mes = f"{self.combo_mes.currentText()} {self.combo_año.currentText()}"
+        respuesta = QMessageBox.question(
+            self, "Confirmar generación de cuotas",
+            f"¿Seguro que quieres generar las cuotas de todos los alumnos activos para el mes {nombre_mes}?",
+            QMessageBox.Yes | QMessageBox.No
+        )
+        if respuesta == QMessageBox.Yes:
+            creadas, ya_existentes, sin_tipo = generar_cuotas_del_mes(self.cursor, mes_cuota)
+            mensaje = f"Cuotas creadas: {creadas}\nCuotas ya existentes: {ya_existentes}"
+            if sin_tipo:
+                mensaje += "\n\nSin cuota anterior (créala a mano):\n• " + "\n• ".join(sin_tipo)
+            QMessageBox.information(self, "Cuotas generadas", mensaje)

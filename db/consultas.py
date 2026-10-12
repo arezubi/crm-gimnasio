@@ -117,3 +117,15 @@ def obtener_precio_tipo_cuota(cursor, id_tipo_cuota):
     cursor.execute("SELECT precio FROM tipo_cuota WHERE id = ?", (id_tipo_cuota,))
     resultado = cursor.fetchone()
     return resultado[0] if resultado else None
+
+
+def ultimo_tipo_cuota(cursor, id_alumno):
+    '''Devuelve el id_tipo_cuota de la cuota más reciente del alumno o None si no tiene ninguna.'''
+    cursor.execute(''' 
+        SELECT id_tipo_cuota FROM cuotas
+        WHERE id_alumno = ?
+        ORDER BY mes_cuota DESC
+        LIMIT 1 
+    ''',(id_alumno,))
+    resultado = cursor.fetchone()
+    return resultado[0] if resultado else None
