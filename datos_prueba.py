@@ -30,9 +30,9 @@ from db.db import (
     marcar_cuota_pagada,
     registrar_asistencia,
     generar_facturas,
-    registrar_usuario,
     baja_alumno
 )
+from logica.autenticacion import crear_usuario
 
 conexion = sqlite3.connect(RUTA_BD)
 conexion.execute("PRAGMA foreign_keys = ON")
@@ -177,7 +177,7 @@ registrar_asistencia(cursor, id_sofia, id_fightbox, "2026-09-06")
 
 print("--- Usuarios (para probar el login) ---")
 # El admin lo crea crear_usuario_inicial.py; aquí solo añadimos un operador.
-registrar_usuario(cursor, "Marcos Login", "marcos.login@gimnasio.com", "operador123", "operador", id_marcos)
+crear_usuario(cursor, "Marcos Login", "marcos.login@gimnasio.com", "operador123", "operador", id_marcos)
 
 conexion.close()
 

@@ -1,9 +1,8 @@
 from PySide6.QtWidgets import QComboBox, QLineEdit, QMessageBox
-from db.db import registrar_usuario
 from db.consultas import listar_profesores_activos
 from gui.componentes import FormularioBase, marcar_error
 from logica.validaciones import email_valido, password_valida, LONGITUD_MINIMA_PASSWORD
-
+from logica.autenticacion import crear_usuario
 
 class VentanaRegistrarUsuario(FormularioBase):
     def __init__(self, cursor):
@@ -64,7 +63,7 @@ class VentanaRegistrarUsuario(FormularioBase):
         rol = self.campo_rol.currentData()
         id_profesor = self.campo_profesor.currentData()  # None si no es profesor
 
-        resultado = registrar_usuario(self.cursor, nombre, email, password, rol, id_profesor)
+        resultado = crear_usuario(self.cursor, nombre, email, password, rol, id_profesor)
 
         if resultado is True:
             QMessageBox.information(self, "Éxito", "Usuario registrado correctamente.")

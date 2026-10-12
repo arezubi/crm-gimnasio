@@ -1,6 +1,5 @@
 from datetime import date
 import sqlite3
-import bcrypt
 
 def alta_alumno(cursor, nombre, apellidos, fecha_cumpleaños, email, telefono, contacto_emergencia):
     """
@@ -359,7 +358,7 @@ def generar_facturas(cursor, id_cuota, fecha_factura=None):
         cursor.connection.rollback()
         return False
 
-def registrar_usuario(cursor, nombre, email, password, rol, id_profesor=None):
+def registrar_usuario(cursor, nombre, email, password_hash, rol, id_profesor=None):
     """
     Función para registrar un nuevo usuario en la base de datos.
 
@@ -367,7 +366,7 @@ def registrar_usuario(cursor, nombre, email, password, rol, id_profesor=None):
     cursor: Objeto cursor de la base de datos.
     nombre: Nombre del usuario.
     email: Correo electrónico del usuario.
-    password: Contraseña del usuario (en texto plano).
+    password_hash: Contraseña del usuario (ya cifrada).
     rol: Rol del usuario ('admin' u 'operador').
     id_profesor: ID del profesor asociado al usuario (opcional).
 
@@ -375,14 +374,11 @@ def registrar_usuario(cursor, nombre, email, password, rol, id_profesor=None):
     True, False o 'duplicado' (si el email ya existe)
     """
     try:
-        # Hashear la contraseña antes de almacenarla
-        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-        
         # Insertar el nuevo usuario en la tabla correspondiente
         cursor.execute("""
             INSERT INTO usuarios (nombre, email, password, rol, id_profesor)
             VALUES (?, ?, ?, ?, ?)
-        """, (nombre, email, hashed_password.decode('utf-8'), rol, id_profesor))
+        """, (nombre, email, password_hash, rol, id_profesor))
         
         # Confirmar los cambios en la base de datos
         cursor.connection.commit()
