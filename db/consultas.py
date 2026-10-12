@@ -97,3 +97,12 @@ def obtener_usuario(cursor, email):
     """Devuelve el password_hash, rol y nombre del usuario con ese email, o None si no existe."""
     cursor.execute("SELECT password, rol, nombre FROM usuarios WHERE email = ?", (email,))
     return cursor.fetchone()
+
+def esta_inscrito(cursor, id_alumno, id_actividad):
+    """Devuelve True si el alumno está inscrito en la actividad, False si no."""
+    cursor.execute("""
+        SELECT 1
+        FROM inscripciones
+        WHERE id_alumno = ? AND id_actividades = ?
+    """, (id_alumno, id_actividad))
+    return cursor.fetchone() is not None

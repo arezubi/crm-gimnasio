@@ -28,11 +28,11 @@ from db.db import (
     inscribir_alumno_actividad,
     crear_cuota_mensual,
     marcar_cuota_pagada,
-    registrar_asistencia,
     generar_facturas,
     baja_alumno
 )
 from logica.autenticacion import crear_usuario
+from logica.asistencia import registrar_asistencia
 
 conexion = sqlite3.connect(RUTA_BD)
 conexion.execute("PRAGMA foreign_keys = ON")
@@ -168,7 +168,7 @@ print("--- Asistencias, repartidas en varios días ---")
 registrar_asistencia(cursor, id_ana, id_boxeo, "2026-09-01")
 registrar_asistencia(cursor, id_ana, id_boxeo, "2026-09-03")
 registrar_asistencia(cursor, id_ana, id_boxeo, "2026-09-08")
-registrar_asistencia(cursor, id_luis, id_bjj, "2026-09-02")
+registrar_asistencia(cursor, id_luis, id_k1, "2026-09-02")
 registrar_asistencia(cursor, id_luis, id_mma, "2026-09-04")
 registrar_asistencia(cursor, id_marta, id_boxeo, "2026-09-01")
 registrar_asistencia(cursor, id_marta, id_bjj, "2026-09-05")

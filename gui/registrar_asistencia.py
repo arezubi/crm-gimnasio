@@ -1,6 +1,6 @@
 from PySide6.QtCore import QDate
 from PySide6.QtWidgets import QComboBox, QDateEdit, QMessageBox
-from db.db import registrar_asistencia
+from logica.asistencia import registrar_asistencia
 from db.consultas import listar_actividades, listar_alumnos_activos
 from gui.componentes import FormularioBase
 

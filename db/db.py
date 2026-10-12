@@ -278,20 +278,13 @@ def registrar_asistencia(cursor, id_alumno, id_actividad, fecha_asistencia=None)
     fecha_asistencia: Fecha de la asistencia (opcional, por defecto es hoy).
 
     Retorna:
-    True si se registra, "no inscrito" si el alumno no está en esa actividad,
+    True si se registra,
     "duplicado" si ya existía ese registro, False si hay otro error.
     """
     if fecha_asistencia is None:
         fecha_asistencia = date.today().isoformat()
 
     try:
-        cursor.execute("""
-            SELECT 1 FROM inscripciones
-            WHERE id_alumno = ? AND id_actividades = ?
-        """, (id_alumno, id_actividad))
-        if cursor.fetchone() is None:
-            return "no inscrito"
-
         cursor.execute("""
             INSERT INTO asistencia (id_alumno, id_actividades, fecha_asistencia)
             VALUES (?, ?, ?)
