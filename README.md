@@ -7,14 +7,14 @@ Tecnologías: Python 3, PySide6, SQLite, Pandas, Matplotlib y bcrypt.
 
 ## Funcionalidades
 - Login con roles (admin y operador).
-- Alta y baja de alumnos y profesores.
+- Alta, edición y baja de alumnos; alta y baja de profesores.
 - Actividades, inscripciones y registro de asistencia.
-- Tipos de cuota, cuotas mensuales y marcar cuotas pagadas.
+- Tipos de cuota, cuotas mensuales y marcar cuotas pagadas. Generación en bloque, haciendo uso de la última cuota pagada. En caso de no tener, se gnerea manualmente. 
 - Facturas en PDF (carpeta `facturas/`) y listado de facturas emitidas para volver a abrirlas.
 - Calendario mensual de asistencia, filtrable por alumno y actividad, con resumen por alumno.
 - Listado de alumnos con buscador y estado de la cuota del mes (pagada / pendiente / sin cuota).
 - Dashboard con alumnos activos, altas del mes, ingresos del mes, cuotas pendientes,
-  actividad más popular, gráfico de los últimos 6 meses y cuotas pendientes más antiguas.
+  asisitencia del mes, gráfico de los últimos 6 meses y cuotas pendientes más antiguas.
 - Estadísticas: ingresos y altas por mes (eligiendo el año) y por año, actividades más populares.
 
 ## Criterios
