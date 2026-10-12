@@ -173,3 +173,15 @@ def asistencia_por_alumno(cursor, anio, mes, id_actividad=None):
         ORDER BY 3 DESC, 2
     """, parametros)
     return cursor.fetchall()
+
+def ingresos_por_tipo_cuota(cursor, mes):
+    """Suma de importes pagados por tipo de cuota en un mes dado ('YYYY-MM-01')."""
+    cursor.execute("""
+        SELECT tipo_cuota.nombre, COUNT(cuotas.id), COALESCE(SUM(cuotas.importe), 0)
+        FROM tipo_cuota
+        LEFT JOIN cuotas ON cuotas.id_tipo_cuota = tipo_cuota.id
+            AND cuotas.pago_realizado = 1 AND cuotas.mes_cuota = ?
+        GROUP BY tipo_cuota.nombre
+        ORDER BY tipo_cuota.precio
+    """, (mes,))
+    return cursor.fetchall()

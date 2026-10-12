@@ -153,6 +153,22 @@ marcar_cuota_pagada(cursor, id_ultima_fila("cuotas"))
 crear_cuota_mensual(cursor, id_pablo, id_adulto, "2026-09-01")
 # ↑ sin pagar
 
+# Octubre: algunas pagadas, otras pendientes (para "pagos pendientes" y "cuotas pendientes")
+crear_cuota_mensual(cursor, id_ana, id_adulto, "2026-10-01")
+marcar_cuota_pagada(cursor, id_ultima_fila("cuotas"))
+
+crear_cuota_mensual(cursor, id_luis, id_adulto_2act, "2026-10-01")
+# ↑ esta la dejamos SIN pagar a propósito
+
+crear_cuota_mensual(cursor, id_sofia, id_infantil, "2026-10-01")
+# ↑ esta también sin pagar
+
+crear_cuota_mensual(cursor, id_marta, id_adulto_2act, "2026-10-01")
+marcar_cuota_pagada(cursor, id_ultima_fila("cuotas"))
+
+crear_cuota_mensual(cursor, id_pablo, id_adulto, "2026-10-01")
+# ↑ sin pagar
+
 
 print("--- Facturas: solo para algunas cuotas pagadas, para poder ver el listado de 'cuotas pagadas sin facturar' ---")
 cursor.execute("SELECT id FROM cuotas WHERE id_alumno = ? AND mes_cuota = '2026-08-01'", (id_ana,))
