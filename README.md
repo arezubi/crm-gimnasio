@@ -37,9 +37,6 @@ Tecnologías: Python 3, PySide6, SQLite, Pandas, Matplotlib y bcrypt.
 
 Para empezar desde cero, borra `gimnasio.db` y vuelve a arrancar la aplicación.
 
-
-Si cambias la estructura de las tablas, borra `gimnasio.db` y repite los pasos 1 a 3.
-
 ## Ejecutable para Windows
     python -m PyInstaller --noconfirm --name CRMGimnasio --add-data "resources;resources" --add-data "assets;assets" main.py
 
