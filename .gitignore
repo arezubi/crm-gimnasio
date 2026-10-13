@@ -7,3 +7,6 @@ prueba.py
 prueba_dashboard.py
 comprobar_roles.py
 facturas/
+build/
+dist/
+CRMGimnasio.spec

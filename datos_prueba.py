@@ -28,7 +28,8 @@ from db.db import (
     inscribir_alumno_actividad,
     baja_alumno
 )
-from logica.autenticacion import crear_usuario
+from db.esquema import crear_tablas
+from logica.autenticacion import crear_admin_si_no_hay_usuarios, crear_usuario
 from logica.asistencia import registrar_asistencia
 from logica.facturas import facturar_cuota
 from logica.cuotas import crear_cuota_mensual, marcar_cuota_pagada
@@ -37,6 +38,8 @@ conexion = sqlite3.connect(RUTA_BD)
 conexion.execute("PRAGMA foreign_keys = ON")
 cursor = conexion.cursor()
 
+crear_tablas(conexion)
+crear_admin_si_no_hay_usuarios(cursor)
 
 def id_ultima_fila(tabla):
     """Pequeño ayudante: devuelve el id autoincremental de la última fila insertada en una tabla."""

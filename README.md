@@ -29,13 +29,22 @@ Tecnologías: Python 3, PySide6, SQLite, Pandas, Matplotlib y bcrypt.
 
        pip install -r requirements.txt
 
-## Puesta en marcha (ejecutar en este orden)
-1. `python crear_bbdd.py` crea la base de datos `gimnasio.db`.
-2. `python crear_usuario_inicial.py` crea el usuario administrador.
-3. `python datos_prueba.py` carga datos de ejemplo y un usuario operador (opcional).
-4. `python main.py` arranca la aplicación.
+## Puesta en marcha
+1. `python main.py` arranca la aplicación. La primera vez crea automáticamente
+   la base de datos `gimnasio.db` y el usuario administrador.
+2. (Opcional) `python datos_prueba.py` carga alumnos, profesores, cuotas y un
+   usuario operador de ejemplo para probar la aplicación.
+
+Para empezar desde cero, borra `gimnasio.db` y vuelve a arrancar la aplicación.
+
 
 Si cambias la estructura de las tablas, borra `gimnasio.db` y repite los pasos 1 a 3.
+
+## Ejecutable para Windows
+    python -m PyInstaller --noconfirm --name CRMGimnasio --add-data "resources;resources" --add-data "assets;assets" main.py
+
+El programa queda en `dist/CRMGimnasio/`. La base de datos y las facturas se guardan
+junto a `CRMGimnasio.exe`, así que no se pierden al instalar una versión nueva.
 
 ## Usuarios de prueba
 | Rol | Email | Contraseña |
@@ -63,6 +72,7 @@ se llaman directamente desde `gui` a `db`. Las que tienen reglas pasan siempre p
 - `db/`: acceso a la base de datos.
   - `db.py`: escribe (altas, bajas, INSERT, UPDATE).
   - `consultas.py`: lee (SELECT), sin cambiar nada.
+  - `esquema.py`: creación de las tablas.
 - `gui/`: pantallas de la aplicación.
   - `ventana_principal.py`: barra lateral y secciones.
   - `componentes.py`: clases base (`Pagina`, `FormularioBase`) y formatos (euros, fechas).

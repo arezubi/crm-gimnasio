@@ -138,3 +138,8 @@ def obtener_alumno(cursor, id_alumno):
         WHERE id = ?
     """, (id_alumno,))
     return cursor.fetchone()
+
+def hay_usuarios(cursor):
+    """Devuelve True si hay al menos un usuario en la tabla, False si está vacía."""
+    cursor.execute("SELECT COUNT(*) FROM usuarios")
+    return cursor.fetchone()[0] > 0

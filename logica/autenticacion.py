@@ -1,6 +1,7 @@
-from db.consultas import obtener_usuario
+from db.consultas import hay_usuarios, obtener_usuario
 import bcrypt
 from db.db import registrar_usuario
+from config import DATOS_GIMNASIO
 
 def iniciar_sesion(cursor, email, password):
     """Devuelve el rol y nombre si el email y la contraseña son correctos, o None si no lo son."""
@@ -23,3 +24,8 @@ def crear_usuario(cursor, nombre, email, password, rol, id_profesor=None):
     password_hash = cifrar_password(password)
     
     return registrar_usuario(cursor, nombre, email, password_hash, rol, id_profesor)
+
+def crear_admin_si_no_hay_usuarios(cursor):
+    """Crea un usuario administrador por defecto si no hay ningún usuario en la base de datos."""
+    if not hay_usuarios(cursor):
+        crear_usuario(cursor, "Admin", "admin@gimnasio.com", "admin123", "admin")
