@@ -38,7 +38,8 @@ Tecnologías: Python 3, PySide6, SQLite, Pandas, Matplotlib y bcrypt.
 Para empezar desde cero, borra `gimnasio.db` y vuelve a arrancar la aplicación.
 
 ## Ejecutable para Windows
-    python -m PyInstaller --noconfirm --name CRMGimnasio --add-data "resources;resources" --add-data "assets;assets" main.py
+    python -m PyInstaller --noconfirm --windowed --icon assets/icono.ico --name CRMGimnasio --add-data "resources;resources" --add-data "assets;assets" main.py
+
 
 El programa queda en `dist/CRMGimnasio/`. La base de datos y las facturas se guardan
 junto a `CRMGimnasio.exe`, así que no se pierden al instalar una versión nueva.
