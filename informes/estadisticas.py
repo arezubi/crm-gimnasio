@@ -185,3 +185,66 @@ def ingresos_por_tipo_cuota(cursor, mes):
         ORDER BY tipo_cuota.precio
     """, (mes,))
     return cursor.fetchall()
+
+def ingresos_por_tipo_cuota_anual(cursor, anio):
+    """Suma de importes pagados por tipo de cuota en un año dado."""
+    cursor.execute("""
+        SELECT tipo_cuota.nombre, COUNT(cuotas.id), COALESCE(SUM(cuotas.importe), 0)
+        FROM tipo_cuota
+        LEFT JOIN cuotas ON cuotas.id_tipo_cuota = tipo_cuota.id
+            AND cuotas.pago_realizado = 1 AND cuotas.mes_cuota LIKE ?
+        GROUP BY tipo_cuota.nombre
+        ORDER BY tipo_cuota.precio
+    """, (f"{anio}-%",))
+    return cursor.fetchall()
+
+def gastos_por_mes(cursor, anio):
+    """Devuelve {mes: total_gastos} del año indicado. Ej.: {1: 3843.24, 2: 4248.09}"""
+    cursor.execute("""
+        SELECT strftime('%m', fecha), SUM(importe)
+        FROM gastos
+        WHERE strftime('%Y', fecha) = ?
+        GROUP BY strftime('%m', fecha)
+    """, (str(anio),))
+    return {int(mes): total for mes, total in cursor.fetchall()}
+
+def gastos_por_categoria(cursor, anio, mes=None):
+    """Gastos agrupados por categoría: lista de (categoria, total), de mayor a menor.
+    Si mes es None, el año entero; si no, solo ese mes."""
+    sql = """
+        SELECT categoria, SUM(importe) AS total
+        FROM gastos
+        WHERE strftime('%Y', fecha) = ?
+    """
+    parametros = [str(anio)]
+
+    if mes is not None:
+        sql += " AND strftime('%Y-%m', fecha) = ?"
+        parametros.append(f"{anio}-{mes:02d}")
+
+    sql += " GROUP BY categoria ORDER BY total DESC"
+    cursor.execute(sql, parametros)
+    return cursor.fetchall()
+
+def asistencias_por_actividad(cursor, anio, mes):
+    """Asistencias de un mes por actividad: lista de (actividad, nº asistencias),
+    de más a menos."""
+    cursor.execute("""
+        SELECT actividades.nombre, COUNT(*) AS total
+        FROM asistencia
+        JOIN actividades ON asistencia.id_actividades = actividades.id
+        WHERE strftime('%Y-%m', asistencia.fecha_asistencia) = ?
+        GROUP BY actividades.id, actividades.nombre
+        ORDER BY total DESC, actividades.nombre
+    """, (f"{anio}-{mes:02d}",))
+    return cursor.fetchall()
+
+def gastos_del_mes(cursor, anio, mes):
+    """Gastos de un mes: lista de (fecha, concepto, categoria, importe), por fecha."""
+    cursor.execute("""
+        SELECT fecha, concepto, categoria, importe
+        FROM gastos
+        WHERE strftime('%Y-%m', fecha) = ?
+        ORDER BY fecha
+    """, (f"{anio}-{mes:02d}",))
+    return cursor.fetchall()

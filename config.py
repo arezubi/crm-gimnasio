@@ -14,6 +14,7 @@ else:                                          # ejecutándolo con "python main.
 
 RUTA_BD = CARPETA_DATOS / "gimnasio.db"
 CARPETA_FACTURAS = CARPETA_DATOS / "facturas"
+CARPETA_INFORMES = CARPETA_DATOS / "informes_generados"
 RUTA_ESTILO = CARPETA_RECURSOS / "resources" / "estilo.qss"
 RUTA_LOGO = CARPETA_RECURSOS / "assets" / "Logo.svg"
 
@@ -21,9 +22,9 @@ RUTA_LOGO = CARPETA_RECURSOS / "assets" / "Logo.svg"
 DATOS_GIMNASIO = {
     "nombre": "Spartan Team",
     "cif": "B00000000",
-    "direccion": "Calle Ejemplo 1, 28000 Madrid",
+    "direccion": "Av Dos de Mayo, 68 nave 61. CP.28609 Sevilla la Nueva, Madrid",
     "email": "info@spartanteam.es",
-    "telefono": "600 000 000",
+    "telefono": "695677539",
 }
 
 

@@ -2,3 +2,4 @@ PySide6
 bcrypt
 pandas
 matplotlib
+plotly
