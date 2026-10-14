@@ -61,7 +61,7 @@ class PanelDashboard(Pagina):
         self.tabla.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeToContents)
         layout_tabla.addWidget(self.tabla, 1)
 
-        # --- Tabla ingresos por tipo de cuota (solo para mostrar que se puede hacer) ---
+        # --- Tabla ingresos por tipo de cuota ---
         tarjeta_ingresos, layout_ingresos = self.crear_panel("Ingresos por tipo de cuota")
         self.tabla_ingresos = QTableWidget()
         configurar_tabla(self.tabla_ingresos, ["Tipo", "Cuotas", "Importe"])

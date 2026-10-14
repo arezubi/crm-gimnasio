@@ -22,7 +22,7 @@ class VentanaInformes(FormularioBase):
         self.combo_tipo = QComboBox()
         self.combo_tipo.addItem("Anual")
         self.combo_tipo.addItem("Mensual")
-        self.combo_tipo.currentIndexChanged.connect(self.actualizar_mes)   # conecta DESPUÉS de crear combo_mes
+        self.combo_tipo.currentIndexChanged.connect(self.actualizar_mes)
 
         self.agregar_campo("Tipo", self.combo_tipo)
         self.agregar_campo("Año", self.combo_anio)

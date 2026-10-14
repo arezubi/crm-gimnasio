@@ -55,13 +55,11 @@ def alta_profesor(cursor, nombre, apellidos, fecha_cumpleaños, email, telefono,
     """
     fecha_alta = date.today().isoformat()
     try:
-        # Insertar el nuevo profesor en la tabla correspondiente
         cursor.execute("""
             INSERT INTO profesor (nombre, apellidos, fecha_cumpleaños, email, telefono, activo, fecha_alta)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         """, (nombre, apellidos, fecha_cumpleaños, email, telefono, activo, fecha_alta))
         
-        # Confirmar los cambios en la base de datos
         cursor.connection.commit()
         print("Profesor dado de alta exitosamente.")
         return True
@@ -71,7 +69,6 @@ def alta_profesor(cursor, nombre, apellidos, fecha_cumpleaños, email, telefono,
             return "duplicado"
         return False
     except Exception as e:
-        # Manejar cualquier error que ocurra durante la inserción
         print(f"Error al dar de alta al profesor: {e}")
         cursor.connection.rollback()
         return False
@@ -90,18 +87,15 @@ def baja_alumno(cursor, alumno_id):
     """
     fecha_baja = date.today().isoformat()
     try:
-        # Baja al alumno de la tabla correspondiente
         cursor.execute("""
             UPDATE alumno SET activo = 0, fecha_baja = ?  WHERE id = ?
         """, (fecha_baja, alumno_id,))
         
-        # Confirmar los cambios en la base de datos
         cursor.connection.commit()
         print("Alumno dado de baja exitosamente.")
         return True
     
     except Exception as e:
-        # Manejar cualquier error que ocurra durante la eliminación
         print(f"Error al dar de baja al alumno: {e}")
         cursor.connection.rollback()
         return False
@@ -119,18 +113,15 @@ def baja_profesor(cursor, profesor_id):
     """
     fecha_baja = date.today().isoformat()
     try:
-        # Baja al profesor de la tabla correspondiente
         cursor.execute("""
             UPDATE profesor SET activo = 0, fecha_baja = ? WHERE id = ?
         """, (fecha_baja, profesor_id,))
         
-        # Confirmar los cambios en la base de datos
         cursor.connection.commit()
         print("Profesor dado de baja exitosamente.")
         return True
     
     except Exception as e:
-        # Manejar cualquier error que ocurra durante la eliminación
         print(f"Error al dar de baja al profesor: {e}")
         cursor.connection.rollback()
         return False
@@ -175,20 +166,17 @@ def inscribir_alumno_actividad(cursor, alumno_id, actividad_id):
     True, False o 'duplicado' (si ya estaba inscrito)
     """
     try:
-        # Insertar la inscripción del alumno en la tabla correspondiente
         cursor.execute("""
             INSERT INTO inscripciones (id_alumno, id_actividades)
             VALUES (?, ?)
         """, (alumno_id, actividad_id))
         
-        # Confirmar los cambios en la base de datos
         cursor.connection.commit()
         return True
     except sqlite3.IntegrityError:
         cursor.connection.rollback()
         return "duplicado"   
     except Exception as e:
-        # Manejar cualquier error que ocurra durante la inscripción
         print(f"Error al inscribir al alumno en la actividad: {e}")
         cursor.connection.rollback()
         return False
@@ -208,20 +196,17 @@ def insertar_cuota(cursor, id_alumno, id_tipo_cuota, mes_cuota, importe):
     True, False, o 'duplicado'
     """
     try:
-        # Insertar la cuota mensual en la tabla correspondiente
         cursor.execute("""
             INSERT INTO cuotas (id_alumno, id_tipo_cuota, pago_realizado, mes_cuota, importe)
             VALUES (?, ?, ?, ?, ?)
         """, (id_alumno, id_tipo_cuota, 0, mes_cuota, importe))
         
-        # Confirmar los cambios en la base de datos
         cursor.connection.commit()
         return True
     except sqlite3.IntegrityError:
             cursor.connection.rollback()
             return "duplicado" 
     except Exception as e:
-        # Manejar cualquier error que ocurra durante la creación de la cuota
         print(f"Error al crear la cuota mensual: {e}")
         cursor.connection.rollback()
         return False
@@ -307,7 +292,6 @@ def insertar_factura(cursor, id_cuota, id_alumno, fecha_factura):
         return "duplicado"
 
     except Exception as e:
-        # Manejar cualquier error que ocurra durante la generación de la factura
         print(f"Error al generar la factura: {e}")
         cursor.connection.rollback()
         return False
@@ -328,13 +312,11 @@ def registrar_usuario(cursor, nombre, email, password_hash, rol, id_profesor=Non
     True, False o 'duplicado' (si el email ya existe)
     """
     try:
-        # Insertar el nuevo usuario en la tabla correspondiente
         cursor.execute("""
             INSERT INTO usuarios (nombre, email, password, rol, id_profesor)
             VALUES (?, ?, ?, ?, ?)
         """, (nombre, email, password_hash, rol, id_profesor))
         
-        # Confirmar los cambios en la base de datos
         cursor.connection.commit()
         print("Usuario registrado exitosamente.")
         return True
@@ -345,7 +327,6 @@ def registrar_usuario(cursor, nombre, email, password_hash, rol, id_profesor=Non
         return "duplicado"
 
     except Exception as e:
-        # Manejar cualquier error que ocurra durante el registro
         print(f"Error al registrar el usuario: {e}")
         cursor.connection.rollback()
         return False
@@ -363,13 +344,11 @@ def alta_tipo_cuota(cursor, nombre, precio):
     True, False o 'duplicado'
     """
     try:
-        # Insertar el nuevo tipo de cuota en la tabla correspondiente
         cursor.execute("""
             INSERT INTO tipo_cuota (nombre, precio)
             VALUES (?, ?)
         """, (nombre, precio))
         
-        # Confirmar los cambios en la base de datos
         cursor.connection.commit()
         print("Tipo de cuota dado de alta exitosamente.")
         return True
@@ -377,7 +356,6 @@ def alta_tipo_cuota(cursor, nombre, precio):
         cursor.connection.rollback()
         return "duplicado" 
     except Exception as e:
-        # Manejar cualquier error que ocurra durante la inserción
         print(f"Error al dar de alta el tipo de cuota: {e}")
         cursor.connection.rollback()
         return False
