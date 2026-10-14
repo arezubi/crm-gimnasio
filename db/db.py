@@ -419,3 +419,26 @@ def actualizar_alumno(cursor, id_alumno, nombre, apellidos, fecha_cumpleaños, e
 
     cursor.connection.commit()
     return True
+
+def insertar_gastos(cursor, fecha, concepto, categoria, importe):
+    """Función para insertar gastos
+    Parámtros:
+    fecha: Fecha del gasto.
+    concepto: Concepto del gasto.
+    categoría: Categoria, debe de estar dentro del seleccionable.
+    importe: Importe del gasto.
+
+    Retorna:
+    True o False
+    """
+    try:
+        cursor.execute("""
+            INSERT INTO gastos (fecha, concepto, categoria, importe)
+            VALUES (?, ?, ?, ?)
+        """, (fecha, concepto, categoria, importe))
+        cursor.connection.commit()
+        return True
+    except Exception as e:
+        print(f"Error al crear el gasto<: {e}")
+        cursor.connection.rollback()
+        return False

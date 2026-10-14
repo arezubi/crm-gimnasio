@@ -110,4 +110,14 @@ def crear_tablas(conexion):
         FOREIGN KEY (id_profesor) REFERENCES PROFESOR(id)
         )
     """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS gastos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        fecha DATE NOT NULL,
+        concepto VARCHAR NOT NULL,
+        categoria VARCHAR NOT NULL,
+        importe REAL NOT NULL
+        )
+    """)
     conexion.commit()

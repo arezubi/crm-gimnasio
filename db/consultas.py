@@ -143,3 +143,14 @@ def hay_usuarios(cursor):
     """Devuelve True si hay al menos un usuario en la tabla, False si está vacía."""
     cursor.execute("SELECT COUNT(*) FROM usuarios")
     return cursor.fetchone()[0] > 0
+
+def listar_gastos(cursor, anio):
+    """Devuelve [(fecha, concepto, categoria, importe), ...] de los gastos de un año,
+    del más reciente al más antiguo."""
+    cursor.execute("""
+        SELECT fecha, concepto, categoria, importe
+        FROM gastos
+        WHERE strftime('%Y', fecha) = ?
+        ORDER BY fecha DESC
+    """, (str(anio),))
+    return cursor.fetchall()
