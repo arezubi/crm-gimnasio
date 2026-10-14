@@ -22,11 +22,12 @@ def listar_profesores_activos(cursor):
     return cursor.fetchall()
 
 def listar_actividades(cursor):
-    """Devuelve [(id, nombre), ...] de las actividades, ordenadas por nombre."""
+    """Devuelve [(id, 'Nombre (Profesor)'), ...] de las actividades, ordenadas por nombre."""
     cursor.execute("""
-        SELECT id, nombre
+        SELECT actividades.id, actividades.nombre || ' (' || profesor.nombre || ')'
         FROM actividades
-        ORDER BY nombre
+        JOIN profesor ON actividades.id_profesor = profesor.id
+        ORDER BY actividades.nombre, profesor.nombre
     """)
     return cursor.fetchall()
 
