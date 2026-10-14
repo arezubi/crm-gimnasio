@@ -91,12 +91,15 @@ def nombre_actividad_mas_usada(cursor):
     return df.iloc[0]["nombre"]
 
 def anios_con_datos(cursor):
-    """Años en los que hay cuotas o altas de alumnos, más el actual. Del más reciente al más antiguo."""
+    """Años en los que hay cuotas, gastos o altas de alumnos, más el actual. Del más reciente al más antiguo."""
     cursor.execute("""
         SELECT substr(mes_cuota, 1, 4) FROM cuotas
         UNION
+        SELECT substr(fecha, 1, 4) FROM gastos
+        UNION
         SELECT substr(fecha_alta, 1, 4) FROM alumno
     """)
+
     anios = {int(fila[0]) for fila in cursor.fetchall() if fila[0]}
     anios.add(date.today().year)
     return sorted(anios, reverse=True)

@@ -8,6 +8,7 @@ from config import RUTA_LOGO
 from gui.componentes import crear_boton
 from gui.dashboard import PanelDashboard
 from gui.editar_alumno import VentanaEditarAlumno
+from gui.informes import VentanaInformes
 from gui.listado_alumnos import VentanaListadoAlumnos
 from gui.alta_alumno import VentanaAltaAlumno
 from gui.baja_alumno import VentanaBajaAlumno
@@ -108,6 +109,7 @@ class VentanaPrincipal(QMainWindow):
             ("Altas por mes", VentanaAlumnosNuevos(cursor)),
             ("Altas por año", VentanaGraficoAlumnosNuevosPorAnio(cursor)),
             ("Actividades", VentanaActividadMasUsada(cursor)),
+            ("Informes", VentanaInformes(cursor)),
         ])
         if rol == "admin":
             self.agregar_seccion("Usuarios", [
