@@ -3,7 +3,7 @@
 Aplicación de escritorio para gestionar un gimnasio de deportes de contacto
 (Boxeo, K1, MMA, BJJ, Fight-BOX y Clases Mixtas). Práctica final del curso de Python.
 
-Tecnologías: Python 3, PySide6, SQLite, Pandas, Matplotlib y bcrypt.
+Tecnologías: Python 3, PySide6, SQLite, Pandas, Matplotlib, Plotly y bcrypt.
 
 ## Funcionalidades
 - Login con roles (admin y operador).
@@ -15,6 +15,8 @@ Tecnologías: Python 3, PySide6, SQLite, Pandas, Matplotlib y bcrypt.
 - Listado de alumnos con buscador y estado de la cuota del mes (pagada / pendiente / sin cuota).
 - Dashboard con alumnos activos, altas del mes, ingresos mensuales (total y desglose por tipo de cuota: infantil, adulto y adulto 2 actividades), cuotas pendientes, asistencias del mes, actividades más utilizadas, gráfico de los últimos 6 meses y cuotas pendientes más antiguas.
 - Estadísticas: ingresos y altas por mes (eligiendo el año) y por año, actividades más populares.
+- Gastos: alta por categoría y listado por año. Solo para administradores.
+- Informes HTML interactivos, mensual y anual: altas, facturación, gastos y beneficio bruto. Se abren en el navegador y funcionan sin internet. 
 
 ## Criterios
 - **Ingresos de un mes** = suma del importe de las cuotas *de ese mes* que están pagadas
@@ -33,16 +35,20 @@ Tecnologías: Python 3, PySide6, SQLite, Pandas, Matplotlib y bcrypt.
 1. `python main.py` arranca la aplicación. La primera vez crea automáticamente
    la base de datos `gimnasio.db` y el usuario administrador.
 2. (Opcional) `python datos_prueba.py` carga alumnos, profesores, cuotas y un
-   usuario operador de ejemplo para probar la aplicación.
+   usuario operador de ejemplo para probar la aplicación. También carga asistencias y gastos de todo 2026.
 
 Para empezar desde cero, borra `gimnasio.db` y vuelve a arrancar la aplicación.
 
 ## Ejecutable para Windows
-    python -m PyInstaller --noconfirm --windowed --icon assets/icono.ico --name CRMGimnasio --add-data "resources;resources" --add-data "assets;assets" main.py
+    python -m PyInstaller --noconfirm --windowed --icon assets/icono.ico --name CRMGimnasio --add-data "resources;resources" --add-data "assets;assets" --collect-data plotly main.py
 
+El programa queda en `dist/CRMGimnasio/`. La base de datos, las facturas (`facturas/`) y los
+informes (`informes_generados/`) se guardan junto a `CRMGimnasio.exe`, así que no se pierden
+al instalar una versión nueva.
 
-El programa queda en `dist/CRMGimnasio/`. La base de datos y las facturas se guardan
-junto a `CRMGimnasio.exe`, así que no se pierden al instalar una versión nueva.
+La versión entregada incluye una base de datos con datos de prueba. Para empezar con el
+gimnasio vacío, borra `gimnasio.db` y la aplicación creará una nueva al abrirse.
+
 
 ## Usuarios de prueba
 | Rol | Email | Contraseña |
@@ -50,7 +56,7 @@ junto a `CRMGimnasio.exe`, así que no se pierden al instalar una versión nueva
 | admin | admin@gimnasio.com | admin123 |
 | operador | marcos.login@gimnasio.com | operador123 |
 
-El operador no ve la sección "Usuarios".
+El operador no ve la sección "Usuarios" ni "Gastos".
 
 ## Arquitectura
 La aplicación está dividida en capas. Cada capa solo llama a la de debajo:
@@ -75,7 +81,10 @@ se llaman directamente desde `gui` a `db`. Las que tienen reglas pasan siempre p
   - `ventana_principal.py`: barra lateral y secciones.
   - `componentes.py`: clases base (`Pagina`, `FormularioBase`) y formatos (euros, fechas).
   - `estilo_graficos.py`: tema oscuro de los gráficos y clase base `PaginaGrafico`.
-- `informes/`: estadísticas (leen la base de datos directamente, solo lectura) y generación del PDF de las facturas (`factura_pdf.py`).
+- `informes/`: solo lectura de la base de datos.
+  - `estadisticas.py`: consultas para el dashboard, los gráficos y los informes.
+  - `factura_pdf.py`: PDF de las facturas.
+  - `informe_html.py`: informes HTML interactivos (Plotly), mensual y anual. 
 - `logica/`: reglas del negocio.
   - `autenticacion.py`: contraseñas cifradas con bcrypt, login sin revelar qué dato falla.
   - `validaciones.py`: formato de email y longitud mínima de contraseña.
