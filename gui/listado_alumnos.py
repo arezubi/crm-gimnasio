@@ -40,7 +40,6 @@ class VentanaListadoAlumnos(Pagina):
         self.tabla.horizontalHeaderItem(self.columna_cuota).setText(
             f"Cuota de {MESES[hoy.month - 1]}")
 
-        # LEFT JOIN: también salen los alumnos que todavía no tienen cuota este mes
         filas = listar_alumnos_con_cuotas(self.cursor, mes_actual)
 
         pagadas = 0

@@ -46,9 +46,9 @@ def dibujar_barras(ejes, etiquetas, valores, formato=lambda v: f"{v:g}"):
     barras = ejes.bar(etiquetas, valores, color=COLOR_ACENTO, width=0.6)
     ejes.bar_label(barras, labels=[formato(v) if v else "" for v in valores],
                    color=COLOR_TEXTO, padding=4, fontsize=9)
-    ejes.margins(y=0.15)
+    ejes.margins(y=0.15)  # deja hueco para el texto de la barra más alta
     if son_enteros(valores):
-        ejes.yaxis.set_major_locator(MaxNLocator(integer=True))   # nada de "2.5 alumnos"                    # deja hueco para el texto de la barra más alta
+        ejes.yaxis.set_major_locator(MaxNLocator(integer=True))   # nada de "2.5 alumnos"
 
 
 def dibujar_barras_horizontales(ejes, etiquetas, valores, formato=lambda v: f"{v:g}"):

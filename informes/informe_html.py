@@ -25,9 +25,6 @@ VERDE = "#22c55e"
 ROJO = "#ef4444"
 COLORES_CIRCULAR = [NARANJA, "#ffa45c", "#ffd0a8", GRIS, "#9ca3af", "#d1d5db"]
 
-
-# ---------- Piezas reutilizables ----------
-
 def euros(valor):
     """1234.5 -> '1.234,50 €' (formato español)."""
     texto = f"{valor:,.2f}"                      # '1,234.50'
@@ -164,9 +161,6 @@ def tarjetas_resumen(altas, facturacion, gastos):
         {tarjeta("Beneficio bruto", euros(beneficio), f"margen del {margen:.1f} %".replace(".", ","), clase)}
     </div>"""
 
-
-# ---------- Informe anual ----------
-
 def informe_anual(cursor, anio):
     hoy = date.today()
     ultimo_mes = hoy.month if anio == hoy.year else 12   # el año en curso, solo hasta hoy
@@ -184,7 +178,6 @@ def informe_anual(cursor, anio):
     lista_beneficio = [i - g for i, g in zip(lista_ingresos, lista_gastos)]
     lista_altas = [altas.get(m, 0) for m in meses]
 
-    # 1. Ingresos frente a gastos, con la línea del beneficio
     fig = go.Figure()
     fig.add_bar(name="Ingresos", x=nombres, y=lista_ingresos, marker_color=NARANJA,
                 hovertemplate="%{y:,.2f} €")
@@ -195,13 +188,11 @@ def informe_anual(cursor, anio):
     fig.update_layout(barmode="group", hovermode="x unified")
     grafico_balance = grafico(estilo_grafico(fig, "Ingresos, gastos y beneficio por mes"))
 
-    # 2. Altas por mes
     fig = go.Figure(go.Bar(x=nombres, y=lista_altas, marker_color=NARANJA,
                         text=lista_altas, textposition="outside",
                         hovertemplate="%{x}: %{y} altas<extra></extra>"))
     grafico_altas = grafico(estilo_grafico(fig, "Altas por mes"))
 
-    # 3 y 4. Circulares: gastos por categoría e ingresos por tipo de cuota
     categorias = gastos_por_categoria(cursor, anio)
     grafico_categorias = grafico_circular("Gastos por categoría",
                                         [c for c, _ in categorias], [t for _, t in categorias])
@@ -209,7 +200,6 @@ def informe_anual(cursor, anio):
     grafico_tipos = grafico_circular("Ingresos por tipo de cuota",
                                     [t for t, _, _ in tipos], [imp for _, _, imp in tipos])
 
-    # 5. Tabla mes a mes
     filas = [(MESES[m - 1], a, euros(i), euros(g), euros(i - g))
             for m, a, i, g in zip(meses, lista_altas, lista_ingresos, lista_gastos)]
     total = ("Total", sum(lista_altas), euros(sum(lista_ingresos)),
@@ -230,11 +220,7 @@ def informe_anual(cursor, anio):
     <div class="tabla-scroll">{tabla_meses}</div>"""
     return pagina_html(f"Informe anual {anio}", contenido)
 
-
-# ---------- Informe mensual (te toca a ti) ----------
-
 def informe_mensual(cursor, anio, mes):
-    # 1. Cifras del mes
     altas_por_mes = {periodo.month: n
                     for periodo, n in alumnos_nuevos_por_mes(cursor, anio).items()}
     altas = int(altas_por_mes.get(mes, 0))
@@ -244,18 +230,15 @@ def informe_mensual(cursor, anio, mes):
 
     gastos = gastos_por_mes(cursor, anio).get(mes, 0)
 
-    # 2. Circular: gastos por categoría
     categorias = gastos_por_categoria(cursor, anio, mes)
     grafico_categorias = grafico_circular("Gastos por categoría",
                                         [c for c, _ in categorias],
                                         [t for _, t in categorias])
 
-    # 3. Circular: ingresos por tipo de cuota
     grafico_tipos = grafico_circular("Ingresos por tipo de cuota",
                                         [t for t, _, _ in tipos],
                                         [imp for _, _, imp in tipos])
 
-    # 4. Barras horizontales: asistencias por actividad
     asistencias = asistencias_por_actividad(cursor, anio, mes)
     nombres_actividades = [a for a, _ in asistencias]
     totales = [n for _, n in asistencias]
@@ -267,10 +250,9 @@ def informe_mensual(cursor, anio, mes):
     fig.update_yaxes(autorange="reversed")      # la actividad con más asistencias, arriba
     grafico_asistencias = grafico(estilo_grafico(fig, "Asistencias por actividad"))
 
-    # 5. Tabla con los gastos del mes
     gastos_mes = gastos_del_mes(cursor, anio, mes)
     filas = [(f"{fecha[8:10]}/{fecha[5:7]}/{fecha[:4]}", concepto, categoria, euros(importe))
-             for fecha, concepto, categoria, importe in gastos_mes]
+            for fecha, concepto, categoria, importe in gastos_mes]
     total = ("Total", "", "", euros(sum(importe for _, _, _, importe in gastos_mes)))
     tabla_gastos = tabla(["Fecha", "Concepto", "Categoría", "Importe"], filas, total)
 
@@ -284,9 +266,6 @@ def informe_mensual(cursor, anio, mes):
     <h2>Gastos del mes</h2>
     <div class="tabla-scroll">{tabla_gastos}</div>"""
     return pagina_html(f"Informe de {MESES[mes - 1].lower()} {anio}", contenido)
-
-
-# ---------- Punto de entrada ----------
 
 def generar_informe(cursor, anio, mes=None):
     """Crea el informe (anual si mes es None, mensual si no) y devuelve la ruta del archivo."""
