@@ -9,8 +9,6 @@ from gui.componentes import MarcoClicable, crear_boton
 from gui.dashboard import PanelDashboard
 from gui.informes import VentanaInformes
 from gui.listado_alumnos import VentanaListadoAlumnos
-from gui.alta_profesor import VentanaAltaProfesor
-from gui.baja_profesor import VentanaBajaProfesor
 from gui.alta_actividad import VentanaAltaActividad
 from gui.inscribir_alumno import VentanaInscribirAlumno
 from gui.listado_gastos import VentanaListadoGastos
@@ -28,6 +26,7 @@ from gui.alumnos_nuevos import VentanaAlumnosNuevos
 from gui.alumnos_nuevos_por_anio import VentanaGraficoAlumnosNuevosPorAnio
 from gui.actividad_mas_usada import VentanaActividadMasUsada
 from gui.registrar_usuario import VentanaRegistrarUsuario
+from gui.listado_profesores import VentanaListadoProfesores
 
 NOMBRES_ROL = {"admin": "Administrador", "operador": "Operador"}
 
@@ -87,9 +86,9 @@ class VentanaPrincipal(QMainWindow):
             ("Listado", VentanaListadoAlumnos(cursor))
         ])
         self.agregar_seccion("Profesores", [
-            ("Alta", VentanaAltaProfesor(cursor)),
-            ("Baja", VentanaBajaProfesor(cursor)),
+            ("Listado", VentanaListadoProfesores(cursor)),
         ])
+
         self.agregar_seccion("Actividades", [
             ("Nueva actividad", VentanaAltaActividad(cursor)),
             ("Inscripciones", VentanaInscribirAlumno(cursor)),

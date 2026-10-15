@@ -62,8 +62,9 @@ class VentanaAltaProfesor(FormularioBase):
         )
         if resultado is True:
             QMessageBox.information(self, "Éxito", "Profesor guardado correctamente.")
+            self.guardado.emit()
             self.limpiar_campos([self.campo_nombre, self.campo_apellidos,
-                                 self.campo_email, self.campo_telefono])
+                                self.campo_email, self.campo_telefono])
             self.campo_fecha.setDate(QDate(1990, 1, 1))
             self.check_activo.setChecked(True)
         elif resultado == 'duplicado':

@@ -21,6 +21,19 @@ def listar_profesores_activos(cursor):
     """)
     return cursor.fetchall()
 
+def listar_profesores(cursor):
+    """Devuelve [(id, nombre, apellidos, email, telefono, actividades), ...] de los profesores activos."""
+    cursor.execute("""
+        SELECT profesor.id, profesor.nombre, profesor.apellidos, profesor.email, 
+        profesor.telefono, GROUP_CONCAT(actividades.nombre, ', ')
+        FROM profesor
+        LEFT JOIN actividades ON actividades.id_profesor = profesor.id
+        WHERE profesor.activo =1
+        GROUP BY profesor.id
+        ORDER BY profesor.nombre, profesor.apellidos
+    """)
+    return cursor.fetchall()
+
 def listar_actividades(cursor):
     """Devuelve [(id, 'Nombre (Profesor)'), ...] de las actividades, ordenadas por nombre."""
     cursor.execute("""
@@ -192,3 +205,12 @@ def listar_cuotas_del_mes(cursor, mes):
         ORDER BY cuotas.pago_realizado, alumno.nombre, alumno.apellidos
     """, (mes,))
     return cursor.fetchall()
+
+def obtener_profesor(cursor, id_profesor):
+    """Devuelve (nombre, apellidos, fecha_cumpleaños, email, teléfono) del profesor o None si no existe."""
+    cursor.execute("""
+        SELECT nombre, apellidos, fecha_cumpleaños, email, telefono
+        FROM profesor
+        WHERE id = ?
+    """, (id_profesor,))
+    return cursor.fetchone()

@@ -434,3 +434,40 @@ def borrar_cuota(cursor, id_cuota):
         print(f"Error al borrar la cuota: {e}")
         cursor.connection.rollback()
         return False
+
+def actualizar_profesor(cursor, id_profesor, nombre, apellidos, fecha_cumpleaños, email, telefono):
+    """
+    Función para actualizar la información de un profesor en la base de datos.
+
+    Parámetros:
+    cursor: Objeto cursor de la base de datos.
+    id_alumno: ID del alumno a actualizar.
+    nombre: Nuevo nombre del alumno (opcional).
+    apellidos: Nuevos apellidos del alumno (opcional).
+    fecha_cumpleaños: Nueva fecha de cumpleaños del alumno (opcional).
+    email: Nuevo correo electrónico del alumno (opcional).
+    telefono: Nuevo número de teléfono del alumno (opcional).
+
+    Retorna:
+    True si la operación fue exitosa, False en caso contrario o 'duplicado' si el email ya existe para otro profesor.
+    """
+    
+    try:
+        cursor.execute("""
+            UPDATE profesor
+            SET nombre = ?, apellidos = ?, fecha_cumpleaños = ?, email = ?, telefono = ?
+            WHERE id = ?
+        """, (nombre, apellidos, fecha_cumpleaños, email, telefono, id_profesor))
+
+    except sqlite3.IntegrityError as e:
+            cursor.connection.rollback()
+            if "UNIQUE" in str(e):
+                return "duplicado"
+            return False  
+    except Exception as e:
+        print(f"Error al dar de alta al profesor: {e}")
+        cursor.connection.rollback()
+        return False
+
+    cursor.connection.commit()
+    return True
