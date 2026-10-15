@@ -1,6 +1,6 @@
 from datetime import date
 from PySide6.QtGui import QColor
-from PySide6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QTableWidget
+from PySide6.QtWidgets import QHBoxLayout, QHeaderView, QLabel, QLineEdit, QTableWidget
 from gui.componentes import MESES, Pagina, celda, configurar_tabla, formatear_fecha
 from db.consultas import listar_alumnos_con_cuotas
 
@@ -32,6 +32,9 @@ class VentanaListadoAlumnos(Pagina):
         self.tabla = QTableWidget()
         self.columna_cuota = 5
         configurar_tabla(self.tabla, ["Nombre", "Apellidos", "Email", "Teléfono", "Alta", "Cuota del mes"])
+        # Email, teléfono, alta y cuota se ajustan a su contenido; nombre y apellidos reparten el resto
+        for columna in range(2, 6):
+            self.tabla.horizontalHeader().setSectionResizeMode(columna, QHeaderView.ResizeToContents)
         self.layout_pagina.addWidget(self.tabla, 1)
 
     def recargar(self):

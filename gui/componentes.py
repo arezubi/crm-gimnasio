@@ -1,5 +1,5 @@
 """Piezas reutilizables de la interfaz: páginas, formularios, tablas y formatos."""
-from PySide6.QtCore import Qt, QUrl
+from PySide6.QtCore import Qt, QUrl, Signal
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import (
     QAbstractItemView, QFormLayout, QFrame, QHBoxLayout, QHeaderView, QLabel,
@@ -15,11 +15,15 @@ DIAS_SEMANA = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", 
 
 # ---------- Formatos ----------
 
+def formatear_numero(valor, decimales=0):
+    """1234 -> '1.234'   1234.5 con 2 decimales -> '1.234,50' (formato español)."""
+    texto = f"{float(valor):,.{decimales}f}"            # '1,234.50'
+    return texto.replace(",", "X").replace(".", ",").replace("X", ".")
+
+
 def formatear_euros(valor):
     """45 -> '45,00 €'   1234.5 -> '1.234,50 €'"""
-    texto = f"{float(valor):,.2f}"                      # '1,234.50'
-    texto = texto.replace(",", "X").replace(".", ",").replace("X", ".")
-    return f"{texto} €"
+    return f"{formatear_numero(valor, 2)} €"
 
 
 def plural(cantidad, singular, en_plural):
@@ -102,6 +106,20 @@ class Pagina(QWidget):
         """Vuelve a leer los datos de la base de datos.
         La ventana principal la llama cada vez que se muestra la página."""
         pass
+
+
+class MarcoClicable(QFrame):
+    """QFrame que se comporta como un botón: emite clicked al pulsarlo."""
+    clicked = Signal()
+
+    def __init__(self):
+        super().__init__()
+        self.setCursor(Qt.PointingHandCursor)
+
+    def mousePressEvent(self, evento):
+        if evento.button() == Qt.LeftButton:
+            self.clicked.emit()
+        super().mousePressEvent(evento)
 
 
 class FormularioBase(Pagina):

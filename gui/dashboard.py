@@ -1,16 +1,16 @@
 from datetime import date
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
+from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QFrame, QGridLayout, QHBoxLayout, QHeaderView, QLabel, QTableWidget, QVBoxLayout
 from gui.componentes import (
-    Pagina, celda, configurar_tabla, fecha_larga, formatear_euros, formatear_mes,
+    MarcoClicable, Pagina, celda, configurar_tabla, fecha_larga, formatear_euros, formatear_mes,
 )
 from gui.estilo_graficos import aplicar_estilo, dibujar_barras, dibujar_barras_horizontales, euros_cortos
 from informes.estadisticas import (
     actividad_mas_usada,
     alumnos_activos,
     asistencias_del_mes,
-    ingresos_por_tipo_cuota,
     ingresos_por_tipo_cuota,
     numero_pagos_pendientes,
     ingresos_mes_actual,
@@ -22,6 +22,9 @@ from informes.estadisticas import (
 
 
 class PanelDashboard(Pagina):
+    # Al pulsar una tarjeta: (sección, pestaña) a la que hay que ir. La ventana principal lo escucha.
+    ir_a = Signal(str, str)
+
     def __init__(self, cursor, nombre_usuario=None):
         titulo = f"Hola, {nombre_usuario}" if nombre_usuario else "Hola"
         super().__init__(titulo)
@@ -30,11 +33,12 @@ class PanelDashboard(Pagina):
         # --- Fila de tarjetas con las cifras clave ---
         fila_tarjetas = QHBoxLayout()
         fila_tarjetas.setSpacing(16)
-        self.valor_activos = self.crear_tarjeta(fila_tarjetas, "Alumnos activos")
-        self.valor_nuevos = self.crear_tarjeta(fila_tarjetas, "Altas este mes")
-        self.valor_ingresos = self.crear_tarjeta(fila_tarjetas, "Ingresos del mes")
-        self.valor_pendientes = self.crear_tarjeta(fila_tarjetas, "Cuotas pendientes")
-        self.valor_asistencias = self.crear_tarjeta(fila_tarjetas, "Asistencias este mes")
+        self.valor_activos = self.crear_tarjeta(fila_tarjetas, "Alumnos activos", "Alumnos", "Listado")
+        self.valor_nuevos = self.crear_tarjeta(fila_tarjetas, "Altas este mes", "Estadísticas", "Altas por mes")
+        self.valor_ingresos = self.crear_tarjeta(fila_tarjetas, "Ingresos del mes", "Estadísticas", "Ingresos por mes")
+        self.valor_pendientes = self.crear_tarjeta(fila_tarjetas, "Cuotas pendientes", "Cuotas", "Pendientes")
+        self.valor_asistencias = self.crear_tarjeta(fila_tarjetas, "Asistencias este mes",
+                                                    "Actividades", "Calendario de asistencia")
         self.layout_pagina.addLayout(fila_tarjetas)
 
         # --- Gráfico de los últimos meses ---
@@ -81,9 +85,11 @@ class PanelDashboard(Pagina):
         cuadricula.setColumnStretch(1, 2)
         self.layout_pagina.addLayout(cuadricula, 1)
 
-    def crear_tarjeta(self, layout, titulo):
-        tarjeta = QFrame()
+    def crear_tarjeta(self, layout, titulo, seccion, pestana):
+        tarjeta = MarcoClicable()
         tarjeta.setObjectName("tarjeta_kpi")
+        tarjeta.setToolTip(f"Ir a {seccion} › {pestana}")
+        tarjeta.clicked.connect(lambda: self.ir_a.emit(seccion, pestana))
         layout_tarjeta = QVBoxLayout(tarjeta)
         layout_tarjeta.setContentsMargins(20, 16, 20, 16)
         layout_tarjeta.setSpacing(2)

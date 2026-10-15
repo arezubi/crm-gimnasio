@@ -21,6 +21,7 @@ class VentanaGenerarGasto(FormularioBase):
         self.campo_importe.setDecimals(2)
         self.campo_importe.setRange(0, 100000)
         self.campo_importe.setSuffix(" €")
+        self.campo_importe.setGroupSeparatorShown(True)    # 1.250,00 €
 
         self.agregar_campo("Fecha", self.campo_fecha)
         self.agregar_campo("Concepto", self.campo_concepto)

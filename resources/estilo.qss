@@ -76,6 +76,10 @@ QFrame#tarjeta, QFrame#tarjeta_kpi {
     border-radius: 12px;
 }
 
+QFrame#tarjeta_kpi:hover {
+    border: 1px solid #ff6a00;
+}
+
 QLabel#valor_tarjeta {
     font-size: 28px;
     font-weight: 700;
@@ -163,7 +167,7 @@ QFrame#panel_marca {
 
 /* ---------- Campos ---------- */
 
-QLineEdit, QComboBox, QDateEdit, QSpinBox {
+QLineEdit, QComboBox, QDateEdit, QSpinBox, QDoubleSpinBox {
     background-color: #232323;
     color: #f2f2f2;
     border: 1px solid #333333;
@@ -173,11 +177,11 @@ QLineEdit, QComboBox, QDateEdit, QSpinBox {
     selection-background-color: #ff6a00;
 }
 
-QLineEdit:hover, QComboBox:hover, QDateEdit:hover, QSpinBox:hover {
+QLineEdit:hover, QComboBox:hover, QDateEdit:hover, QSpinBox:hover, QDoubleSpinBox:hover {
     border: 1px solid #444444;
 }
 
-QLineEdit:focus, QComboBox:focus, QDateEdit:focus, QSpinBox:focus {
+QLineEdit:focus, QComboBox:focus, QDateEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus {
     border: 1px solid #ff6a00;
 }
 
@@ -195,6 +199,48 @@ QComboBox::down-arrow, QDateEdit::down-arrow {
     image: url("resources/flecha_abajo.svg");
     width: 12px;
     height: 12px;
+}
+
+/* Botones + y - de los campos numéricos: una columna a la derecha con las dos flechas */
+QSpinBox, QDoubleSpinBox {
+    padding-right: 32px;
+}
+
+QSpinBox::up-button, QDoubleSpinBox::up-button,
+QSpinBox::down-button, QDoubleSpinBox::down-button {
+    subcontrol-origin: border;
+    width: 28px;
+    border: none;
+    border-left: 1px solid #333333;
+    background-color: #2a2a2a;
+}
+
+QSpinBox::up-button, QDoubleSpinBox::up-button {
+    subcontrol-position: top right;
+    border-top-right-radius: 8px;
+    border-bottom: 1px solid #333333;
+}
+
+QSpinBox::down-button, QDoubleSpinBox::down-button {
+    subcontrol-position: bottom right;
+    border-bottom-right-radius: 8px;
+}
+
+QSpinBox::up-button:hover, QDoubleSpinBox::up-button:hover,
+QSpinBox::down-button:hover, QDoubleSpinBox::down-button:hover {
+    background-color: rgba(255, 106, 0, 0.25);
+}
+
+QSpinBox::up-arrow, QDoubleSpinBox::up-arrow {
+    image: url("resources/flecha_arriba.svg");
+    width: 10px;
+    height: 10px;
+}
+
+QSpinBox::down-arrow, QDoubleSpinBox::down-arrow {
+    image: url("resources/flecha_abajo.svg");
+    width: 10px;
+    height: 10px;
 }
 
 QComboBox QAbstractItemView {

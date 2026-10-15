@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (
     QPushButton, QStackedWidget, QTabWidget, QVBoxLayout, QWidget,
 )
 from config import RUTA_LOGO
-from gui.componentes import crear_boton
+from gui.componentes import MarcoClicable, crear_boton
 from gui.dashboard import PanelDashboard
 from gui.editar_alumno import VentanaEditarAlumno
 from gui.informes import VentanaInformes
@@ -55,6 +55,12 @@ class VentanaPrincipal(QMainWindow):
         self.layout_menu.setContentsMargins(16, 24, 16, 16)
         self.layout_menu.setSpacing(4)
 
+        # Logo y nombre: al pulsarlos se vuelve al inicio
+        bloque_marca = MarcoClicable()
+        bloque_marca.setToolTip("Ir al inicio")
+        layout_marca = QVBoxLayout(bloque_marca)
+        layout_marca.setContentsMargins(0, 0, 0, 0)
+        layout_marca.setSpacing(4)
         logo = QLabel()
         logo.setPixmap(QIcon(str(RUTA_LOGO)).pixmap(QSize(80, 120)))
         logo.setAlignment(Qt.AlignCenter)
@@ -64,18 +70,22 @@ class VentanaPrincipal(QMainWindow):
         marca_sub = QLabel("CRM Gimnasio")
         marca_sub.setObjectName("marca_sub")
         marca_sub.setAlignment(Qt.AlignCenter)
-        self.layout_menu.addWidget(logo)
-        self.layout_menu.addWidget(marca)
-        self.layout_menu.addWidget(marca_sub)
+        layout_marca.addWidget(logo)
+        layout_marca.addWidget(marca)
+        layout_marca.addWidget(marca_sub)
+        self.layout_menu.addWidget(bloque_marca)
         self.layout_menu.addSpacing(24)
 
         # --- Zona central ---
         self.paginas = QStackedWidget()
         self.grupo_botones = QButtonGroup(self)   # solo un botón marcado a la vez
+        self.secciones = {}                       # nombre -> (botón, contenedor)
 
         # --- Secciones: (texto de la pestaña, página) ---
+        dashboard = PanelDashboard(cursor, nombre_usuario)
+        dashboard.ir_a.connect(self.ir_a)
         boton_inicio = self.agregar_seccion("Inicio", [
-            ("Inicio", PanelDashboard(cursor, nombre_usuario)),
+            ("Inicio", dashboard),
         ])
         self.agregar_seccion("Alumnos", [
             ("Listado", VentanaListadoAlumnos(cursor)),
@@ -143,6 +153,7 @@ class VentanaPrincipal(QMainWindow):
         layout.addWidget(self.paginas, 1)
         self.setCentralWidget(contenedor)
 
+        bloque_marca.clicked.connect(boton_inicio.click)
         boton_inicio.click()
 
     def agregar_seccion(self, nombre, paginas):
@@ -164,7 +175,22 @@ class VentanaPrincipal(QMainWindow):
         boton.clicked.connect(lambda: self.mostrar_seccion(contenedor))
         self.grupo_botones.addButton(boton)
         self.layout_menu.addWidget(boton)
+        self.secciones[nombre] = (boton, contenedor)
         return boton
+
+    def ir_a(self, seccion, pestana):
+        """Abre una sección y, si tiene pestañas, la pestaña con ese título."""
+        if seccion not in self.secciones:      # p. ej. una sección solo para admin
+            return
+        boton, contenedor = self.secciones[seccion]
+        if isinstance(contenedor, QTabWidget):
+            for indice in range(contenedor.count()):
+                if contenedor.tabText(indice) == pestana:
+                    contenedor.blockSignals(True)      # que no recargue ahora: lo hace el click de abajo
+                    contenedor.setCurrentIndex(indice)
+                    contenedor.blockSignals(False)
+                    break
+        boton.click()
 
     def mostrar_seccion(self, contenedor):
         self.paginas.setCurrentWidget(contenedor)
