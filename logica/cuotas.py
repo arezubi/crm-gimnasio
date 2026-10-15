@@ -1,6 +1,6 @@
 from datetime import date
 from db.consultas import listar_alumnos_activos, obtener_estado_cuota, obtener_precio_tipo_cuota, ultimo_tipo_cuota
-from db.db import insertar_cuota, guardar_pago
+from db.db import borrar_cuota, insertar_cuota, guardar_pago
 
 def crear_cuota_mensual(cursor, id_alumno, id_tipo_cuota, mes_cuota):
     """
@@ -63,4 +63,17 @@ def generar_cuotas_del_mes(cursor, mes_cuota):
         else:
             print(f"Error al crear cuota para {nombre}: {resultado}")
     return creadas, ya_existentes, sin_tipo
-        
+
+def eliminar_cuota(cursor, id_cuota):
+    """Elimina una cuota pendiente.
+    Devuelve:
+    True si se elimina, "no existe" si no hay ninguna con ese id,
+    "ya pagada" si está cobrada (no se borra un ingreso),
+    y lo que devuelva borrar_cuota en los demás casos ("facturada" o False)."""
+    estado = obtener_estado_cuota(cursor, id_cuota)
+    if estado is None:
+        return "no existe"
+    id_alumno, pagada = estado
+    if pagada:
+        return "ya pagada"
+    return borrar_cuota(cursor, id_cuota)

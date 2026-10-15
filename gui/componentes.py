@@ -210,3 +210,31 @@ def celda(texto, a_la_derecha=False):
     if a_la_derecha:
         item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
     return item
+
+
+def poner_botones_fila(tabla, fila, columna, id_fila, *botones):
+    """Pone botones pequeños en una celda de la tabla. Cada botón llama a su función con el id
+    de la fila. Ejemplo:
+        poner_botones_fila(self.tabla, fila, 4, id_cuota,
+                           ("Cobrar", self.cobrar), ("Eliminar", self.eliminar, "peligro"))"""
+    contenedor = QWidget()
+    layout = QHBoxLayout(contenedor)
+    layout.setContentsMargins(0, 0, 0, 0)
+    layout.setSpacing(6)
+    for texto, accion, *tipo in botones:
+        # *_ recoge el "checked" que manda la señal clicked; accion=accion fija la función de
+        # este botón (sin eso, todas las lambdas del bucle llamarían a la última)
+        boton = crear_boton(texto, lambda *_, accion=accion: accion(id_fila), *(tipo or ["secundario"]))
+        boton.setProperty("pequeno", True)
+        refrescar_estilo(boton)          # aplica el estilo pequeño antes de calcular el tamaño
+        boton.setMinimumWidth(boton.sizeHint().width())   # que no se encoja y corte el texto
+        layout.addWidget(boton)
+    layout.addStretch()
+    tabla.setCellWidget(fila, columna, contenedor)
+
+    # Ancho de la columna: los botones + los 12 px de margen de la celda a cada lado
+    # (QTableWidget::item en estilo.qss), que Qt no cuenta por sí solo
+    ancho = contenedor.sizeHint().width() + 24
+    tabla.horizontalHeader().setSectionResizeMode(columna, QHeaderView.Fixed)
+    if tabla.columnWidth(columna) < ancho:
+        tabla.setColumnWidth(columna, ancho)

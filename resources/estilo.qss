@@ -319,6 +319,13 @@ QPushButton#peligro:pressed {
     background-color: #c53a3f;
 }
 
+/* Botones dentro de las filas de una tabla (botones_fila en componentes.py) */
+QPushButton[pequeno="true"] {
+    padding: 5px 12px;
+    font-size: 12px;
+    border-radius: 6px;
+}
+
 QMessageBox QPushButton {
     min-width: 90px;
 }

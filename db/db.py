@@ -413,3 +413,24 @@ def insertar_gastos(cursor, fecha, concepto, categoria, importe):
         print(f"Error al crear el gasto<: {e}")
         cursor.connection.rollback()
         return False
+
+def borrar_cuota(cursor, id_cuota):
+    """Borra una cuota.
+
+    Retorna:
+    True si se borra, "no existe" si no hay ninguna con ese id,
+    "facturada" si tiene factura asociada (no se puede borrar), False si hay otro error.
+    """
+    try:
+        cursor.execute("DELETE FROM cuotas WHERE id = ?", (id_cuota,))
+        if cursor.rowcount == 0:
+            return "no existe"
+        cursor.connection.commit()
+        return True
+    except sqlite3.IntegrityError:
+        cursor.connection.rollback()
+        return "facturada"
+    except Exception as e:
+        print(f"Error al borrar la cuota: {e}")
+        cursor.connection.rollback()
+        return False

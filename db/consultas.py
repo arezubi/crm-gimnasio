@@ -178,3 +178,17 @@ def asistentes_del_dia(cursor, id_actividad, fecha):
         WHERE id_actividades = ? AND fecha_asistencia = ?
     """, (id_actividad, fecha))
     return {fila[0] for fila in cursor.fetchall()}
+
+def listar_cuotas_del_mes(cursor, mes):
+    """Devuelve [(id_cuota, alumno, tipo, importe, pagada, fecha_pago), ...] de las cuotas
+    de un mes ('AAAA-MM-01'), con las pendientes primero."""
+    cursor.execute("""
+        SELECT cuotas.id, alumno.nombre || ' ' || alumno.apellidos, tipo_cuota.nombre,
+        cuotas.importe, cuotas.pago_realizado, cuotas.fecha_pago
+        FROM cuotas
+        JOIN alumno ON cuotas.id_alumno = alumno.id
+        JOIN tipo_cuota ON cuotas.id_tipo_cuota = tipo_cuota.id
+        WHERE cuotas.mes_cuota = ?
+        ORDER BY cuotas.pago_realizado, alumno.nombre, alumno.apellidos
+    """, (mes,))
+    return cursor.fetchall()

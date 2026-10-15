@@ -36,7 +36,7 @@ class PanelDashboard(Pagina):
         self.valor_activos = self.crear_tarjeta(fila_tarjetas, "Alumnos activos", "Alumnos", "Listado")
         self.valor_nuevos = self.crear_tarjeta(fila_tarjetas, "Altas este mes", "Estadísticas", "Altas por mes")
         self.valor_ingresos = self.crear_tarjeta(fila_tarjetas, "Ingresos del mes", "Estadísticas", "Ingresos por mes")
-        self.valor_pendientes = self.crear_tarjeta(fila_tarjetas, "Cuotas pendientes", "Cuotas", "Pendientes")
+        self.valor_pendientes = self.crear_tarjeta(fila_tarjetas, "Cuotas pendientes", "Cuotas", "Cuotas del mes")
         self.valor_asistencias = self.crear_tarjeta(fila_tarjetas, "Asistencias este mes",
                                                     "Actividades", "Calendario de asistencia")
         self.layout_pagina.addLayout(fila_tarjetas)
