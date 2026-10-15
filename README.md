@@ -35,7 +35,8 @@ Tecnologías: Python 3, PySide6, SQLite, Pandas, Matplotlib, Plotly y bcrypt.
 1. `python main.py` arranca la aplicación. La primera vez crea automáticamente
    la base de datos `gimnasio.db` y el usuario administrador.
 2. (Opcional) `python datos_prueba.py` carga alumnos, profesores, cuotas y un
-   usuario operador de ejemplo para probar la aplicación. También carga asistencias y gastos de todo 2026.
+   usuario operador de ejemplo para probar la aplicación. También carga asistencias y
+   gastos de todo 2026. Borra la base de datos y la crea de nuevo con datos de prueba.
 
 Para empezar desde cero, borra `gimnasio.db` y vuelve a arrancar la aplicación.
 
