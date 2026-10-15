@@ -24,7 +24,6 @@ def alta_alumno(cursor, nombre, apellidos, fecha_cumpleaños, email, telefono, c
             VALUES (?, ?, ?, ?, ?, ?, ?)
         """, (nombre, apellidos, fecha_cumpleaños, email, telefono, contacto_emergencia, fecha_alta))
         cursor.connection.commit()
-        print("Alumno dado de alta exitosamente.")
         return True
     except sqlite3.IntegrityError as e:
         cursor.connection.rollback()
@@ -61,7 +60,6 @@ def alta_profesor(cursor, nombre, apellidos, fecha_cumpleaños, email, telefono,
         """, (nombre, apellidos, fecha_cumpleaños, email, telefono, activo, fecha_alta))
         
         cursor.connection.commit()
-        print("Profesor dado de alta exitosamente.")
         return True
     except sqlite3.IntegrityError as e:
         cursor.connection.rollback()
@@ -92,7 +90,6 @@ def baja_alumno(cursor, alumno_id):
         """, (fecha_baja, alumno_id,))
         
         cursor.connection.commit()
-        print("Alumno dado de baja exitosamente.")
         return True
     
     except Exception as e:
@@ -118,7 +115,6 @@ def baja_profesor(cursor, profesor_id):
         """, (fecha_baja, profesor_id,))
         
         cursor.connection.commit()
-        print("Profesor dado de baja exitosamente.")
         return True
     
     except Exception as e:
@@ -255,7 +251,6 @@ def registrar_asistencia(cursor, id_alumno, id_actividad, fecha_asistencia=None)
         """, (id_alumno, id_actividad, fecha_asistencia))
 
         cursor.connection.commit()
-        print("Asistencia registrada exitosamente.")
         return True
 
     except sqlite3.IntegrityError:
@@ -318,7 +313,6 @@ def registrar_usuario(cursor, nombre, email, password_hash, rol, id_profesor=Non
         """, (nombre, email, password_hash, rol, id_profesor))
         
         cursor.connection.commit()
-        print("Usuario registrado exitosamente.")
         return True
 
     except sqlite3.IntegrityError:
@@ -350,7 +344,6 @@ def alta_tipo_cuota(cursor, nombre, precio):
         """, (nombre, precio))
         
         cursor.connection.commit()
-        print("Tipo de cuota dado de alta exitosamente.")
         return True
     except sqlite3.IntegrityError:
         cursor.connection.rollback()

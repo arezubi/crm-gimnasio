@@ -100,7 +100,7 @@ class VentanaPrincipal(QMainWindow):
         self.agregar_seccion("Actividades", [
             ("Nueva actividad", VentanaAltaActividad(cursor)),
             ("Inscripciones", VentanaInscribirAlumno(cursor)),
-            ("Registrar asistencia", VentanaRegistrarAsistencia(cursor)),
+            ("Pasar lista", VentanaRegistrarAsistencia(cursor)),
             ("Calendario de asistencia", VentanaCalendarioAsistencia(cursor)),
         ])
         self.agregar_seccion("Cuotas", [

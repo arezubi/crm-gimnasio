@@ -155,3 +155,26 @@ def listar_gastos(cursor, anio):
         ORDER BY fecha DESC
     """, (str(anio),))
     return cursor.fetchall()
+
+def listar_inscritos(cursor, id_actividad):
+    """ Devuelve [(id_alumno, 'Nombre Apellidos'), ...] de los alumnos activos inscritos en esa actividad, 
+    ordenados por nombre."""
+    cursor.execute(""" 
+        SELECT inscripciones.id_alumno, alumno.nombre || ' ' || alumno.apellidos
+        FROM inscripciones
+        JOIN alumno ON inscripciones.id_alumno = alumno.id
+        WHERE inscripciones.id_actividades = ?
+        AND alumno.activo = 1
+        ORDER BY alumno.nombre, alumno.apellidos
+    """, (id_actividad,))
+    return cursor.fetchall()
+
+def asistentes_del_dia(cursor, id_actividad, fecha):
+    """Devuelve el conjunto de id_alumno que ya tienen asistencia ese día en esa actividad.
+    fecha en formato 'AAAA-MM-DD'."""
+    cursor.execute("""
+        SELECT id_alumno
+        FROM asistencia
+        WHERE id_actividades = ? AND fecha_asistencia = ?
+    """, (id_actividad, fecha))
+    return {fila[0] for fila in cursor.fetchall()}
