@@ -12,7 +12,6 @@ from gui.listado_alumnos import VentanaListadoAlumnos
 from gui.alta_actividad import VentanaAltaActividad
 from gui.inscribir_alumno import VentanaInscribirAlumno
 from gui.listado_gastos import VentanaListadoGastos
-from gui.nuevo_gasto import VentanaGenerarGasto
 from gui.registrar_asistencia import VentanaRegistrarAsistencia
 from gui.calendario_asistencia import VentanaCalendarioAsistencia
 from gui.cuotas_pendientes import VentanaCuotasPendientes
@@ -117,7 +116,6 @@ class VentanaPrincipal(QMainWindow):
                 ("Nuevo usuario", VentanaRegistrarUsuario(cursor)),
             ])
             self.agregar_seccion("Gastos", [
-                ("Nuevo gasto", VentanaGenerarGasto(cursor)),
                 ("Listado", VentanaListadoGastos(cursor)),
             ])
 

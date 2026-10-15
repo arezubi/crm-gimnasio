@@ -410,7 +410,7 @@ def insertar_gastos(cursor, fecha, concepto, categoria, importe):
         cursor.connection.commit()
         return True
     except Exception as e:
-        print(f"Error al crear el gasto<: {e}")
+        print(f"Error al crear el gasto: {e}")
         cursor.connection.rollback()
         return False
 
@@ -471,3 +471,33 @@ def actualizar_profesor(cursor, id_profesor, nombre, apellidos, fecha_cumpleaño
 
     cursor.connection.commit()
     return True
+
+def actualizar_gasto(cursor, id_gasto, fecha, concepto, categoria, importe):
+    """Cambia los datos de un gasto. Devuelve True, "no existe" o False si hay un error."""
+    try:
+        cursor.execute("""
+            UPDATE gastos
+            SET fecha = ?, concepto = ?, categoria = ?, importe = ?
+            WHERE id = ?
+        """, (fecha, concepto, categoria, importe, id_gasto))
+        if cursor.rowcount == 0:
+            return "no existe"
+        cursor.connection.commit()
+        return True
+    except Exception as e:
+        print(f"Error al actualizar el gasto: {e}")
+        cursor.connection.rollback()
+        return False
+
+def borrar_gasto(cursor, id_gasto):
+    """Borra un gasto. Devuelve True, "no existe" o False si hay un error."""
+    try:
+        cursor.execute("DELETE FROM gastos WHERE id = ?", (id_gasto,))
+        if cursor.rowcount == 0:
+            return "no existe"
+        cursor.connection.commit()
+        return True
+    except Exception as e:
+        print(f"Error al borrar el gasto: {e}")
+        cursor.connection.rollback()
+        return False

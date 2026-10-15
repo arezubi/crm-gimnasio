@@ -159,10 +159,10 @@ def hay_usuarios(cursor):
     return cursor.fetchone()[0] > 0
 
 def listar_gastos(cursor, anio):
-    """Devuelve [(fecha, concepto, categoria, importe), ...] de los gastos de un año,
+    """Devuelve [(id, fecha, concepto, categoria, importe), ...] de los gastos de un año,
     del más reciente al más antiguo."""
     cursor.execute("""
-        SELECT fecha, concepto, categoria, importe
+        SELECT id, fecha, concepto, categoria, importe
         FROM gastos
         WHERE strftime('%Y', fecha) = ?
         ORDER BY fecha DESC
@@ -213,4 +213,13 @@ def obtener_profesor(cursor, id_profesor):
         FROM profesor
         WHERE id = ?
     """, (id_profesor,))
+    return cursor.fetchone()
+
+def obtener_gasto(cursor, id_gasto):
+    """Devuelve (fecha, concepto, categoria, importe) del gasto o None si no existe."""
+    cursor.execute("""
+        SELECT fecha, concepto, categoria, importe
+        FROM gastos
+        WHERE id = ?
+    """, (id_gasto,))
     return cursor.fetchone()
