@@ -83,9 +83,16 @@ class VentanaEditarAlumno(FormularioBase):
 
         if resultado is True:
             QMessageBox.information(self, "Éxito", f"{nombre} {apellidos} se ha editado correctamente.")
+            self.guardado.emit()
             self.recargar()
         elif resultado == 'duplicado':
             marcar_error(self.campo_email, True)
             QMessageBox.warning(self, "Error", "Ya existe un alumno con este email.")
         else:
             QMessageBox.warning(self, "Error", "No se pudo editar al alumno.")
+
+    def cargar_alumno(self, id_alumno):
+        """Abre el formulario con ese alumno elegido y sin el desplegable (desde el listado)."""
+        self.recargar()
+        self.combo_alumno.setCurrentIndex(self.combo_alumno.findData(id_alumno))
+        self.formulario.setRowVisible(self.combo_alumno, False)

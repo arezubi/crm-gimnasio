@@ -56,6 +56,7 @@ class VentanaAltaAlumno(FormularioBase):
 
         if resultado is True:
             QMessageBox.information(self, "Éxito", f"{nombre} {apellidos} ya es alumno del gimnasio.")
+            self.guardado.emit()
             self.limpiar_campos([self.campo_nombre, self.campo_apellidos, self.campo_email,
                                  self.campo_telefono, self.campo_contacto_emergencia])
             self.campo_fecha.setDate(QDate(2000, 1, 1))

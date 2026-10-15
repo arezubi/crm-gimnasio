@@ -7,11 +7,8 @@ from PySide6.QtWidgets import (
 from config import RUTA_LOGO
 from gui.componentes import MarcoClicable, crear_boton
 from gui.dashboard import PanelDashboard
-from gui.editar_alumno import VentanaEditarAlumno
 from gui.informes import VentanaInformes
 from gui.listado_alumnos import VentanaListadoAlumnos
-from gui.alta_alumno import VentanaAltaAlumno
-from gui.baja_alumno import VentanaBajaAlumno
 from gui.alta_profesor import VentanaAltaProfesor
 from gui.baja_profesor import VentanaBajaProfesor
 from gui.alta_actividad import VentanaAltaActividad
@@ -87,10 +84,7 @@ class VentanaPrincipal(QMainWindow):
             ("Inicio", dashboard),
         ])
         self.agregar_seccion("Alumnos", [
-            ("Listado", VentanaListadoAlumnos(cursor)),
-            ("Alta", VentanaAltaAlumno(cursor)),
-            ("Baja", VentanaBajaAlumno(cursor)),
-            ("Editar", VentanaEditarAlumno(cursor)),
+            ("Listado", VentanaListadoAlumnos(cursor))
         ])
         self.agregar_seccion("Profesores", [
             ("Alta", VentanaAltaProfesor(cursor)),

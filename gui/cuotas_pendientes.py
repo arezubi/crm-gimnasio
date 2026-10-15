@@ -1,7 +1,7 @@
 from datetime import date
 
 from PySide6.QtGui import QColor
-from PySide6.QtWidgets import QComboBox, QHBoxLayout, QLabel, QMessageBox, QTableWidget
+from PySide6.QtWidgets import QComboBox, QHBoxLayout, QHeaderView, QLabel, QMessageBox, QTableWidget
 from db.consultas import listar_cuotas_del_mes
 from logica.cuotas import eliminar_cuota, marcar_cuota_pagada
 from gui.componentes import (MESES, Pagina, celda, configurar_tabla,formatear_euros, formatear_fecha, poner_botones_fila)
@@ -12,7 +12,7 @@ COLOR_PENDIENTE = QColor("#e5484d")
 
 class VentanaCuotasPendientes(Pagina):
     def __init__(self, cursor):
-        super().__init__("Cuotas del mes")
+        super().__init__("Cuotas del mes", "Cobra o elimina las cuotas de cada mes.")
         self.cursor = cursor
 
         hoy = date.today()
@@ -39,6 +39,9 @@ class VentanaCuotasPendientes(Pagina):
 
         self.tabla = QTableWidget()
         configurar_tabla(self.tabla, ["Alumno", "Tipo", "Importe", "Estado", ""])
+        # Importe y estado ocupan lo que necesitan; alumno y tipo reparten el resto
+        for columna in (2, 3):
+            self.tabla.horizontalHeader().setSectionResizeMode(columna, QHeaderView.ResizeToContents)
         self.layout_pagina.addWidget(self.tabla, 1)
 
         # Se conectan al final, cuando la tabla ya existe
@@ -72,8 +75,8 @@ class VentanaCuotasPendientes(Pagina):
                 estado.setForeground(COLOR_PENDIENTE)
                 self.tabla.setItem(fila_idx, 3, estado)
                 poner_botones_fila(self.tabla, fila_idx, 4, id_cuota,
-                                   ("Cobrar", self.cobrar, "primario"),
-                                   ("Eliminar", self.eliminar, "peligro"))
+                                ("Cobrar", self.cobrar, "primario"),
+                                ("🗑️", self.eliminar, "peligro", "Eliminar cuota"))
 
 
         self.etiqueta_resumen.setText(

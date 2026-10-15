@@ -2,7 +2,7 @@
 from PySide6.QtCore import Qt, QUrl, Signal
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import (
-    QAbstractItemView, QFormLayout, QFrame, QHBoxLayout, QHeaderView, QLabel,
+    QAbstractItemView, QDialog, QFormLayout, QFrame, QHBoxLayout, QHeaderView, QLabel,
     QLineEdit, QMessageBox, QPushButton, QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
@@ -84,6 +84,8 @@ def marcar_error(campo, hay_error):
 
 class Pagina(QWidget):
     """Pantalla con título y subtítulo. Todas las pantallas de la app heredan de aquí."""
+    # Un formulario la emite cuando ha guardado bien: si está en una ventana emergente, se cierra
+    guardado = Signal()
 
     def __init__(self, titulo, subtitulo=""):
         super().__init__()
@@ -106,6 +108,19 @@ class Pagina(QWidget):
         """Vuelve a leer los datos de la base de datos.
         La ventana principal la llama cada vez que se muestra la página."""
         pass
+
+
+def abrir_en_dialogo(padre, pagina, titulo):
+    """Muestra una página (por ejemplo, un formulario) en una ventana emergente.
+    Se cierra sola cuando la página emite guardado. Devuelve True si se guardó."""
+    dialogo = QDialog(padre)
+    dialogo.setWindowTitle(titulo)
+    dialogo.setMinimumWidth(600)
+    layout = QVBoxLayout(dialogo)
+    layout.setContentsMargins(0, 0, 0, 0)
+    layout.addWidget(pagina)
+    pagina.guardado.connect(dialogo.accept)
+    return dialogo.exec() == QDialog.Accepted
 
 
 class MarcoClicable(QFrame):
@@ -214,18 +229,25 @@ def celda(texto, a_la_derecha=False):
 
 def poner_botones_fila(tabla, fila, columna, id_fila, *botones):
     """Pone botones pequeños en una celda de la tabla. Cada botón llama a su función con el id
-    de la fila. Ejemplo:
+    de la fila: (texto, función, tipo, ayuda). El tipo y la ayuda son opcionales.
+    Si el texto es solo un icono (📝, 🗑️), el botón se dibuja transparente y la ayuda
+    sale al pasar el ratón por encima. Ejemplo:
         poner_botones_fila(self.tabla, fila, 4, id_cuota,
-                           ("Cobrar", self.cobrar), ("Eliminar", self.eliminar, "peligro"))"""
+                           ("Cobrar", self.cobrar, "primario"),
+                           ("🗑️", self.eliminar, "peligro", "Eliminar"))"""
     contenedor = QWidget()
     layout = QHBoxLayout(contenedor)
     layout.setContentsMargins(0, 0, 0, 0)
     layout.setSpacing(6)
-    for texto, accion, *tipo in botones:
+    for texto, accion, *opciones in botones:
+        tipo = opciones[0] if opciones else "secundario"
         # *_ recoge el "checked" que manda la señal clicked; accion=accion fija la función de
         # este botón (sin eso, todas las lambdas del bucle llamarían a la última)
-        boton = crear_boton(texto, lambda *_, accion=accion: accion(id_fila), *(tipo or ["secundario"]))
-        boton.setProperty("pequeno", True)
+        boton = crear_boton(texto, lambda *_, accion=accion: accion(id_fila), tipo)
+        if len(opciones) > 1:
+            boton.setToolTip(opciones[1])
+        es_icono = not any(letra.isalpha() for letra in texto)
+        boton.setProperty("icono" if es_icono else "pequeno", True)
         refrescar_estilo(boton)          # aplica el estilo pequeño antes de calcular el tamaño
         boton.setMinimumWidth(boton.sizeHint().width())   # que no se encoja y corte el texto
         layout.addWidget(boton)
@@ -234,7 +256,12 @@ def poner_botones_fila(tabla, fila, columna, id_fila, *botones):
 
     # Ancho de la columna: los botones + los 12 px de margen de la celda a cada lado
     # (QTableWidget::item en estilo.qss), que Qt no cuenta por sí solo
+    # La primera vez la columna aún tiene el ancho repartido de configurar_tabla: se sustituye.
+    # Después solo se ensancha, por si otra fila tiene más botones.
     ancho = contenedor.sizeHint().width() + 24
-    tabla.horizontalHeader().setSectionResizeMode(columna, QHeaderView.Fixed)
-    if tabla.columnWidth(columna) < ancho:
+    cabecera = tabla.horizontalHeader()
+    if cabecera.sectionResizeMode(columna) != QHeaderView.Fixed:
+        cabecera.setSectionResizeMode(columna, QHeaderView.Fixed)
+        tabla.setColumnWidth(columna, ancho)
+    elif tabla.columnWidth(columna) < ancho:
         tabla.setColumnWidth(columna, ancho)

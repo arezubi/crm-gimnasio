@@ -326,6 +326,24 @@ QPushButton[pequeno="true"] {
     border-radius: 6px;
 }
 
+/* Botones de icono (📝, 🗑️): sin fondo hasta que se pasa el ratón.
+   Se repite #secundario y #peligro porque un #nombre pesa más que una [propiedad] */
+QPushButton#secundario[icono="true"], QPushButton#peligro[icono="true"] {
+    background-color: transparent;
+    padding: 3px 8px;
+    font-family: "Segoe UI Emoji";
+    font-size: 15px;
+    border-radius: 6px;
+}
+
+QPushButton#secundario[icono="true"]:hover {
+    background-color: #2f2f2f;
+}
+
+QPushButton#peligro[icono="true"]:hover {
+    background-color: rgba(229, 72, 77, 0.25);
+}
+
 QMessageBox QPushButton {
     min-width: 90px;
 }

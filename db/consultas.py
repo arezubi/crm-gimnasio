@@ -65,9 +65,9 @@ def listar_facturas(cursor):
     return cursor.fetchall()
 
 def listar_alumnos_con_cuotas(cursor, mes):
-    """Devuelve [(nombre, apellidos, email, teléfono, fecha_alta, pagada), ...] de los alumnos activos y el estado de su cuota de un mes dado."""
+    """Devuelve [(id_alumno, nombre, apellidos, email, teléfono, fecha_alta, pagada), ...] de los alumnos activos y el estado de su cuota de un mes dado."""
     cursor.execute("""
-        SELECT alumno.nombre, alumno.apellidos, alumno.email, alumno.telefono,
+        SELECT alumno.id, alumno.nombre, alumno.apellidos, alumno.email, alumno.telefono,
             alumno.fecha_alta, cuotas.pago_realizado
         FROM alumno
         LEFT JOIN cuotas ON cuotas.id_alumno = alumno.id AND cuotas.mes_cuota = ?
