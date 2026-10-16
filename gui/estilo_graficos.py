@@ -13,6 +13,7 @@ COLOR_TEXTO = "#f2f2f2"
 COLOR_SECUNDARIO = "#9a9a9a"
 COLOR_REJILLA = "#2c2c2c"
 COLOR_ACENTO = "#ff6a00"
+COLOR_TOTAL = "#ffa45c"          # el total del año, en un naranja más claro que los meses
 
 
 def aplicar_estilo(figura, ejes):
@@ -91,11 +92,23 @@ def euros_cortos(valor):
 FORMATO_EJE = FuncFormatter(lambda valor, _: numero_corto(valor))
 
 
+def dibujar_total(ejes, etiqueta, valor, formato=None):
+    """Una sola barra con el total. Tiene su propia escala: con la de los meses,
+    el total aplastaría las barras de cada mes."""
+    formato = formato or numero_corto
+    barra = ejes.bar([etiqueta], [valor], color=COLOR_TOTAL, width=0.6)
+    ejes.bar_label(barra, labels=[formato(valor)], color=COLOR_TEXTO, padding=4,
+                   fontsize=10, fontweight="bold")
+    ejes.margins(y=0.15)
+    ejes.set_yticks([])                  # el valor ya está encima de la barra
+    ejes.yaxis.grid(False)
+
+
 class PaginaGrafico(Pagina):
     """Página con un gráfico dentro de una tarjeta y, opcionalmente, un selector de año.
     Las clases hijas solo tienen que implementar dibujar()."""
 
-    def __init__(self, cursor, titulo, subtitulo="", con_selector_anio=False):
+    def __init__(self, cursor, titulo, subtitulo="", con_selector_anio=False, con_total=False):
         super().__init__(titulo, subtitulo)
         self.cursor = cursor
 
@@ -116,7 +129,13 @@ class PaginaGrafico(Pagina):
         layout_tarjeta.setContentsMargins(16, 16, 16, 16)
 
         self.figura = Figure(figsize=(8, 4.5))
-        self.ejes = self.figura.add_subplot(111)
+        self.ejes_total = None
+        if con_total:
+            # Dos gráficos en la misma figura: los meses (ancho) y el total del año (estrecho)
+            self.ejes, self.ejes_total = self.figura.subplots(
+                1, 2, gridspec_kw={"width_ratios": [12, 1.6]})
+        else:
+            self.ejes = self.figura.add_subplot(111)
         self.canvas = FigureCanvasQTAgg(self.figura)
         layout_tarjeta.addWidget(self.canvas)
         self.layout_pagina.addWidget(tarjeta, 1)
@@ -139,6 +158,9 @@ class PaginaGrafico(Pagina):
     def redibujar(self, *args):
         self.ejes.clear()
         aplicar_estilo(self.figura, self.ejes)
+        if self.ejes_total is not None:
+            self.ejes_total.clear()
+            aplicar_estilo(self.figura, self.ejes_total)
         self.dibujar()
         self.figura.tight_layout()
         self.canvas.draw_idle()

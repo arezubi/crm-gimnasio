@@ -108,8 +108,8 @@ def id_factura_de_cuota(cursor, id_cuota):
     return resultado[0] if resultado else None
 
 def obtener_usuario(cursor, email):
-    """Devuelve el password_hash, rol y nombre del usuario con ese email, o None si no existe."""
-    cursor.execute("SELECT password, rol, nombre FROM usuarios WHERE email = ?", (email,))
+    """Devuelve (password_hash, rol, nombre, id) del usuario con ese email, o None si no existe."""
+    cursor.execute("SELECT password, rol, nombre, id FROM usuarios WHERE email = ?", (email,))
     return cursor.fetchone()
 
 def esta_inscrito(cursor, id_alumno, id_actividad):
@@ -223,3 +223,77 @@ def obtener_gasto(cursor, id_gasto):
         WHERE id = ?
     """, (id_gasto,))
     return cursor.fetchone()
+
+def datos_ficha_alumno(cursor, id_alumno):
+    """Devuelve (nombre, apellidos, fecha_cumpleaños, email, teléfono, contacto_emergencia,
+    fecha_alta) del alumno, o None si no existe."""
+    cursor.execute("""
+        SELECT nombre, apellidos, fecha_cumpleaños, email, telefono, contacto_emergencia, fecha_alta
+        FROM alumno
+        WHERE id = ?
+    """, (id_alumno,))
+    return cursor.fetchone()
+
+def actividades_de_alumno(cursor, id_alumno):
+    """Devuelve [(id_actividad, 'Nombre (Profesor)'), ...] de las actividades en las que está
+    inscrito el alumno, ordenadas por nombre."""
+    cursor.execute("""
+        SELECT actividades.id, actividades.nombre || ' (' || profesor.nombre || ')'
+        FROM inscripciones
+        JOIN actividades ON inscripciones.id_actividades = actividades.id
+        JOIN profesor ON actividades.id_profesor = profesor.id
+        WHERE inscripciones.id_alumno = ?
+        ORDER BY actividades.nombre
+    """, (id_alumno,))
+    return cursor.fetchall()
+
+def cuotas_de_alumno(cursor, id_alumno):
+    """Devuelve [(mes_cuota, tipo, importe, pagada, fecha_pago), ...] de todas las cuotas del
+    alumno, de la más reciente a la más antigua."""
+    cursor.execute("""
+        SELECT cuotas.mes_cuota, tipo_cuota.nombre, cuotas.importe, cuotas.pago_realizado,
+               cuotas.fecha_pago
+        FROM cuotas
+        JOIN tipo_cuota ON cuotas.id_tipo_cuota = tipo_cuota.id
+        WHERE cuotas.id_alumno = ?
+        ORDER BY cuotas.mes_cuota DESC
+    """, (id_alumno,))
+    return cursor.fetchall()
+
+def asistencias_de_alumno(cursor, id_alumno):
+    """Devuelve [(fecha, actividad), ...] de todas las asistencias del alumno,
+    de la más reciente a la más antigua."""
+    cursor.execute("""
+        SELECT asistencia.fecha_asistencia, actividades.nombre
+        FROM asistencia
+        JOIN actividades ON asistencia.id_actividades = actividades.id
+        WHERE asistencia.id_alumno = ?
+        ORDER BY asistencia.fecha_asistencia DESC, actividades.nombre
+    """, (id_alumno,))
+    return cursor.fetchall()
+
+def listar_usuarios(cursor):
+    """Devuelve [(id, nombre, email, rol, profesor), ...] de todos los usuarios, ordenados por
+    nombre. profesor es 'Nombre Apellidos' o None si el usuario no es profesor."""
+    cursor.execute("""
+        SELECT usuarios.id, usuarios.nombre, usuarios.email, usuarios.rol,
+               profesor.nombre || ' ' || profesor.apellidos
+        FROM usuarios
+        LEFT JOIN profesor ON usuarios.id_profesor = profesor.id
+        ORDER BY usuarios.nombre
+    """)
+    return cursor.fetchall()
+
+def datos_usuario(cursor, id_usuario):
+    """Devuelve (nombre, email, rol, id_profesor, password_hash) del usuario o None si no existe."""
+    cursor.execute("""
+        SELECT nombre, email, rol, id_profesor, password
+        FROM usuarios
+        WHERE id = ?
+    """, (id_usuario,))
+    return cursor.fetchone()
+
+def contar_admins(cursor):
+    """Devuelve cuántos usuarios tienen el rol de administrador."""
+    cursor.execute("SELECT COUNT(*) FROM usuarios WHERE rol = 'admin'")
+    return cursor.fetchone()[0]

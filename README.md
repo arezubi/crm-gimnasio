@@ -13,6 +13,8 @@ Tecnologías: Python 3, PySide6, SQLite, Pandas, Matplotlib, Plotly y bcrypt.
   más antiguas. El logo de la barra lateral vuelve siempre al inicio.
 - **Alumnos**: listado con buscador y estado de la cuota del mes (pagada / pendiente / sin cuota).
   Desde el mismo listado se da de alta, se edita y se da de baja.
+- **Ficha del alumno** (botón 📋 o doble clic en el listado): sus datos, sus actividades (se le
+  puede inscribir o quitar de cada una), todas sus cuotas y su historial de asistencias.
 - **Profesores**: listado con las actividades que da cada uno. Alta, edición y baja desde el
   listado; al dar de baja a un profesor con actividades, la aplicación lo avisa.
 - **Actividades**: alta de actividades, inscripciones, **pasar lista** (se marca de una vez a todos
@@ -22,12 +24,15 @@ Tecnologías: Python 3, PySide6, SQLite, Pandas, Matplotlib, Plotly y bcrypt.
   cada uno se le asigna el mismo tipo que su última cuota (los que no tienen ninguna se indican
   para crearla a mano). Tipos de cuota con su precio.
 - **Facturas** en PDF (carpeta `facturas/`) y listado de facturas emitidas para volver a abrirlas.
-- **Estadísticas**: ingresos y altas por mes (eligiendo el año) y por año, actividades más
-  populares.
+- **Estadísticas**: ingresos y altas de cada mes del año elegido, con el total del año al lado,
+  y actividades más populares.
 - **Informes HTML interactivos**, mensual y anual: altas, facturación, gastos y beneficio bruto,
   con gráficos en los que se puede pasar el ratón, hacer zoom y ocultar series. Se abren en el
   navegador y funcionan sin internet.
 - **Gastos** (solo administradores): listado por año con alta, edición y eliminación.
+- **Usuarios** (solo administradores): listado con alta, edición (también poner una contraseña
+  nueva) y borrado. No se puede borrar uno mismo ni dejar el gimnasio sin administrador.
+- **Mi cuenta** (todos): cada usuario cambia su nombre y su contraseña (escribiendo la actual).
 - Cifras en formato español (1.234,50 €) en tablas, gráficos y campos.
 
 ## Criterios
@@ -115,13 +120,13 @@ un gasto) se llaman directamente desde `gui` a `db`. Las que tienen reglas pasan
     eliminan las pendientes.
   - `facturas.py`: solo se facturan cuotas pagadas; numeración F-AAAA-NNNN.
   - `gastos.py`: importe mayor que 0 y categoría de la lista, tanto al crear como al editar.
+  - `usuarios.py`: siempre queda al menos un administrador; nadie se borra ni se quita el rol
+    a sí mismo; para cambiar la propia contraseña hay que escribir la actual.
 - `resources/`: estilos (QSS) e iconos de los campos.
 - `assets/`: logo e icono del ejecutable.
 
 ## Mejoras futuras
-- Listado de usuarios con edición y borrado, y pantalla "Mi cuenta" para cambiar el nombre y
-  la contraseña.
-- Estadísticas unificadas: meses y total del año en el mismo gráfico (los informes HTML ya lo
-  muestran así).
-- Ficha del alumno con su historial de cuotas y asistencias.
-- Desinscribir a un alumno de una actividad.
+- Recuperar la contraseña del administrador sin acceso a la aplicación (ahora, otro
+  administrador puede ponerle una nueva desde Usuarios).
+- Avisos de cuotas pendientes por email.
+- Gráfico con la evolución de varios años (ahora cada gráfico muestra un año y su total).

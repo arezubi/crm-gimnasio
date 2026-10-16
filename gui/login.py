@@ -96,8 +96,8 @@ class VentanaLogin(QMainWindow):
             self.campo_password.setFocus()
             return
 
-        rol, nombre_usuario = resultado
+        id_usuario, rol, nombre_usuario = resultado
 
-        self.ventana_principal = VentanaPrincipal(self.cursor, rol, nombre_usuario)
+        self.ventana_principal = VentanaPrincipal(self.cursor, rol, nombre_usuario, id_usuario)
         self.ventana_principal.show()
         self.close()

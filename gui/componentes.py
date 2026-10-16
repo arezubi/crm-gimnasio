@@ -115,10 +115,13 @@ def abrir_en_dialogo(padre, pagina, titulo):
     Se cierra sola cuando la página emite guardado. Devuelve True si se guardó."""
     dialogo = QDialog(padre)
     dialogo.setWindowTitle(titulo)
-    dialogo.setMinimumWidth(600)
     layout = QVBoxLayout(dialogo)
     layout.setContentsMargins(0, 0, 0, 0)
     layout.addWidget(pagina)
+    # Al menos 600 px de ancho, o más si la página lo necesita (por ejemplo, la ficha del alumno).
+    # Con setMinimumWidth la ventana ya no crecería para que quepa la página.
+    tamano = dialogo.sizeHint()
+    dialogo.resize(max(600, tamano.width()), tamano.height())
     pagina.guardado.connect(dialogo.accept)
     return dialogo.exec() == QDialog.Accepted
 

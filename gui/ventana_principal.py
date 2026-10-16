@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (
     QPushButton, QStackedWidget, QTabWidget, QVBoxLayout, QWidget,
 )
 from config import RUTA_LOGO
-from gui.componentes import MarcoClicable, crear_boton
+from gui.componentes import MarcoClicable, abrir_en_dialogo, crear_boton
 from gui.dashboard import PanelDashboard
 from gui.informes import VentanaInformes
 from gui.listado_alumnos import VentanaListadoAlumnos
@@ -20,11 +20,10 @@ from gui.alta_tipo_cuota import VentanaAltaTipoCuota
 from gui.generar_factura import VentanaGenerarFactura
 from gui.listado_facturas import VentanaListadoFacturas
 from gui.grafico_ingresos import VentanaGraficoIngresos
-from gui.grafico_ingresos_anual import VentanaGraficoIngresosAnual
 from gui.alumnos_nuevos import VentanaAlumnosNuevos
-from gui.alumnos_nuevos_por_anio import VentanaGraficoAlumnosNuevosPorAnio
 from gui.actividad_mas_usada import VentanaActividadMasUsada
-from gui.registrar_usuario import VentanaRegistrarUsuario
+from gui.listado_usuarios import VentanaListadoUsuarios
+from gui.mi_cuenta import VentanaMiCuenta
 from gui.listado_profesores import VentanaListadoProfesores
 
 NOMBRES_ROL = {"admin": "Administrador", "operador": "Operador"}
@@ -34,7 +33,7 @@ class VentanaPrincipal(QMainWindow):
     """Una sola ventana: barra lateral con las secciones a la izquierda
     y, a la derecha, un QStackedWidget que muestra la sección elegida."""
 
-    def __init__(self, cursor, rol, nombre_usuario="Usuario"):
+    def __init__(self, cursor, rol, nombre_usuario="Usuario", id_usuario=None):
         super().__init__()
         self.cursor = cursor
         self.setWindowTitle("Spartan Team · CRM Gimnasio")
@@ -76,7 +75,9 @@ class VentanaPrincipal(QMainWindow):
         self.secciones = {}                       # nombre -> (botón, contenedor)
 
         # --- Secciones: (texto de la pestaña, página) ---
+        self.id_usuario = id_usuario
         dashboard = PanelDashboard(cursor, nombre_usuario)
+        self.dashboard = dashboard
         dashboard.ir_a.connect(self.ir_a)
         boton_inicio = self.agregar_seccion("Inicio", [
             ("Inicio", dashboard),
@@ -104,16 +105,14 @@ class VentanaPrincipal(QMainWindow):
             ("Facturas emitidas", VentanaListadoFacturas(cursor)),
         ])
         self.agregar_seccion("Estadísticas", [
-            ("Ingresos por mes", VentanaGraficoIngresos(cursor)),
-            ("Ingresos por año", VentanaGraficoIngresosAnual(cursor)),
-            ("Altas por mes", VentanaAlumnosNuevos(cursor)),
-            ("Altas por año", VentanaGraficoAlumnosNuevosPorAnio(cursor)),
+            ("Ingresos", VentanaGraficoIngresos(cursor)),
+            ("Altas", VentanaAlumnosNuevos(cursor)),
             ("Actividades", VentanaActividadMasUsada(cursor)),
             ("Informes", VentanaInformes(cursor)),
         ])
         if rol == "admin":
             self.agregar_seccion("Usuarios", [
-                ("Nuevo usuario", VentanaRegistrarUsuario(cursor)),
+                ("Listado", VentanaListadoUsuarios(cursor, id_usuario)),
             ])
             self.agregar_seccion("Gastos", [
                 ("Listado", VentanaListadoGastos(cursor)),
@@ -125,13 +124,16 @@ class VentanaPrincipal(QMainWindow):
         separador.setObjectName("separador")
         self.layout_menu.addWidget(separador)
         self.layout_menu.addSpacing(8)
-        etiqueta_nombre = QLabel(nombre_usuario)
-        etiqueta_nombre.setObjectName("pie_nombre")
+        self.etiqueta_nombre = QLabel(nombre_usuario)
+        self.etiqueta_nombre.setObjectName("pie_nombre")
         etiqueta_rol = QLabel(NOMBRES_ROL.get(rol, rol))
         etiqueta_rol.setObjectName("pie_rol")
-        self.layout_menu.addWidget(etiqueta_nombre)
+        self.layout_menu.addWidget(self.etiqueta_nombre)
         self.layout_menu.addWidget(etiqueta_rol)
         self.layout_menu.addSpacing(8)
+        if id_usuario is not None:
+            self.layout_menu.addWidget(crear_boton("Mi cuenta", self.abrir_mi_cuenta, tipo="secundario"))
+            self.layout_menu.addSpacing(4)
         self.layout_menu.addWidget(crear_boton("Cerrar sesión", self.cerrar_sesion, tipo="secundario"))
 
         contenedor = QWidget()
@@ -195,6 +197,14 @@ class VentanaPrincipal(QMainWindow):
             pagina.recargar()
         except Exception as e:
             QMessageBox.critical(self, "Error", f"No se pudo cargar esta pantalla:\n\n{e}")
+
+    def abrir_mi_cuenta(self):
+        pagina = VentanaMiCuenta(self.cursor, self.id_usuario)
+        if abrir_en_dialogo(self, pagina, "Mi cuenta"):
+            # El nombre nuevo se ve al momento en la barra lateral y en el saludo del inicio
+            self.etiqueta_nombre.setText(pagina.nombre_guardado)
+            self.dashboard.etiqueta_titulo.setText(f"Hola, {pagina.nombre_guardado}")
+            self.recargar_pagina_actual()
 
     def cerrar_sesion(self):
         from gui.login import VentanaLogin   # import aquí dentro: login.py ya importa este fichero

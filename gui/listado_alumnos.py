@@ -1,4 +1,5 @@
 from datetime import date
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QHBoxLayout, QHeaderView, QLabel, QLineEdit, QMessageBox, QTableWidget
 from db.db import baja_alumno
@@ -6,6 +7,7 @@ from gui.alta_alumno import VentanaAltaAlumno
 from gui.componentes import MESES, Pagina, abrir_en_dialogo, celda, configurar_tabla, crear_boton, formatear_fecha, poner_botones_fila
 from db.consultas import listar_alumnos_con_cuotas
 from gui.editar_alumno import VentanaEditarAlumno
+from gui.ficha_alumno import VentanaFichaAlumno
 
 COLOR_PAGADA = QColor("#3fb950")
 COLOR_PENDIENTE = QColor("#e5484d")
@@ -39,6 +41,7 @@ class VentanaListadoAlumnos(Pagina):
         # Email, teléfono, alta y cuota se ajustan a su contenido; nombre y apellidos reparten el resto
         for columna in range(2, 6):
             self.tabla.horizontalHeader().setSectionResizeMode(columna, QHeaderView.ResizeToContents)
+        self.tabla.cellDoubleClicked.connect(self.abrir_ficha_fila)   # doble clic: ver la ficha
         self.layout_pagina.addWidget(self.tabla, 1)
 
     def recargar(self):
@@ -53,12 +56,15 @@ class VentanaListadoAlumnos(Pagina):
         self.tabla.setRowCount(0)  
         self.tabla.setRowCount(len(filas))
         for fila_idx, (id_alumno, nombre, apellidos, email, telefono, fecha_alta, pagada) in enumerate(filas):
-            self.tabla.setItem(fila_idx, 0, celda(nombre))
+            celda_nombre = celda(nombre)
+            celda_nombre.setData(Qt.UserRole, id_alumno)       # para saber qué alumno es al hacer doble clic
+            self.tabla.setItem(fila_idx, 0, celda_nombre)
             self.tabla.setItem(fila_idx, 1, celda(apellidos))
             self.tabla.setItem(fila_idx, 2, celda(email))
             self.tabla.setItem(fila_idx, 3, celda(telefono))
             self.tabla.setItem(fila_idx, 4, celda(formatear_fecha(fecha_alta)))
             poner_botones_fila(self.tabla, fila_idx, 6, id_alumno,
+                               ("📋", self.ver_ficha, "secundario", "Ver ficha"),
                                ("📝", self.editar_alumno, "secundario", "Editar alumno"),
                                ("🗑️", self.dar_de_baja, "peligro", "Dar de baja"))
 
@@ -86,6 +92,13 @@ class VentanaListadoAlumnos(Pagina):
                 for columna in range(self.tabla.columnCount() -1)
             )
             self.tabla.setRowHidden(fila, texto not in contenido)
+
+    def ver_ficha(self, id_alumno):
+        abrir_en_dialogo(self, VentanaFichaAlumno(self.cursor, id_alumno), "Ficha del alumno")
+        self.recargar()          # en la ficha se le puede inscribir o desinscribir
+
+    def abrir_ficha_fila(self, fila, columna):
+        self.ver_ficha(self.tabla.item(fila, 0).data(Qt.UserRole))
 
     def nuevo_alumno(self):
         pagina = VentanaAltaAlumno(self.cursor)

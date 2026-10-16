@@ -34,8 +34,8 @@ class PanelDashboard(Pagina):
         fila_tarjetas = QHBoxLayout()
         fila_tarjetas.setSpacing(16)
         self.valor_activos = self.crear_tarjeta(fila_tarjetas, "Alumnos activos", "Alumnos", "Listado")
-        self.valor_nuevos = self.crear_tarjeta(fila_tarjetas, "Altas este mes", "Estadísticas", "Altas por mes")
-        self.valor_ingresos = self.crear_tarjeta(fila_tarjetas, "Ingresos del mes", "Estadísticas", "Ingresos por mes")
+        self.valor_nuevos = self.crear_tarjeta(fila_tarjetas, "Altas este mes", "Estadísticas", "Altas")
+        self.valor_ingresos = self.crear_tarjeta(fila_tarjetas, "Ingresos del mes", "Estadísticas", "Ingresos")
         self.valor_pendientes = self.crear_tarjeta(fila_tarjetas, "Cuotas pendientes", "Cuotas", "Cuotas del mes")
         self.valor_asistencias = self.crear_tarjeta(fila_tarjetas, "Asistencias este mes",
                                                     "Actividades", "Calendario de asistencia")

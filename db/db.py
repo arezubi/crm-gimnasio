@@ -177,6 +177,23 @@ def inscribir_alumno_actividad(cursor, alumno_id, actividad_id):
         cursor.connection.rollback()
         return False
 
+def desinscribir_alumno(cursor, id_alumno, id_actividad):
+    """Quita a un alumno de una actividad. Sus asistencias pasadas se conservan.
+    Devuelve True, "no inscrito" o False si hay un error."""
+    try:
+        cursor.execute("""
+            DELETE FROM inscripciones
+            WHERE id_alumno = ? AND id_actividades = ?
+        """, (id_alumno, id_actividad))
+        if cursor.rowcount == 0:
+            return "no inscrito"
+        cursor.connection.commit()
+        return True
+    except Exception as e:
+        print(f"Error al desinscribir al alumno: {e}")
+        cursor.connection.rollback()
+        return False
+
 def insertar_cuota(cursor, id_alumno, id_tipo_cuota, mes_cuota, importe):
     """
     Función para insertar una cuota mensual en la base de datos.
@@ -499,5 +516,50 @@ def borrar_gasto(cursor, id_gasto):
         return True
     except Exception as e:
         print(f"Error al borrar el gasto: {e}")
+        cursor.connection.rollback()
+        return False
+
+def actualizar_usuario(cursor, id_usuario, nombre, email, rol, id_profesor):
+    """Cambia los datos de un usuario (no la contraseña).
+    Devuelve True, "duplicado" si el email es de otro usuario, "no existe" o False."""
+    try:
+        cursor.execute("""
+            UPDATE usuarios
+            SET nombre = ?, email = ?, rol = ?, id_profesor = ?
+            WHERE id = ?
+        """, (nombre, email, rol, id_profesor, id_usuario))
+        if cursor.rowcount == 0:
+            return "no existe"
+        cursor.connection.commit()
+        return True
+    except sqlite3.IntegrityError:
+        cursor.connection.rollback()
+        return "duplicado"
+    except Exception as e:
+        print(f"Error al actualizar el usuario: {e}")
+        cursor.connection.rollback()
+        return False
+
+def cambiar_password(cursor, id_usuario, password_hash):
+    """Guarda una contraseña nueva (ya cifrada). Devuelve True o False."""
+    try:
+        cursor.execute("UPDATE usuarios SET password = ? WHERE id = ?", (password_hash, id_usuario))
+        cursor.connection.commit()
+        return True
+    except Exception as e:
+        print(f"Error al cambiar la contraseña: {e}")
+        cursor.connection.rollback()
+        return False
+
+def borrar_usuario(cursor, id_usuario):
+    """Borra un usuario. Devuelve True, "no existe" o False."""
+    try:
+        cursor.execute("DELETE FROM usuarios WHERE id = ?", (id_usuario,))
+        if cursor.rowcount == 0:
+            return "no existe"
+        cursor.connection.commit()
+        return True
+    except Exception as e:
+        print(f"Error al borrar el usuario: {e}")
         cursor.connection.rollback()
         return False

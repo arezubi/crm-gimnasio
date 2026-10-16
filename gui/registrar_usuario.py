@@ -67,6 +67,7 @@ class VentanaRegistrarUsuario(FormularioBase):
 
         if resultado is True:
             QMessageBox.information(self, "Éxito", "Usuario registrado correctamente.")
+            self.guardado.emit()
             self.limpiar()
         elif resultado == 'duplicado':
             marcar_error(self.campo_email, True)
