@@ -3,8 +3,10 @@ from datetime import date
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QComboBox, QHBoxLayout, QHeaderView, QLabel, QMessageBox, QTableWidget
 from db.consultas import listar_cuotas_del_mes
-from logica.cuotas import eliminar_cuota, marcar_cuota_pagada
-from gui.componentes import (MESES, Pagina, celda, configurar_tabla,formatear_euros, formatear_fecha, poner_botones_fila)
+from logica.cuotas import eliminar_cuota, generar_cuotas_del_mes, marcar_cuota_pagada
+from gui.componentes import (MESES, Pagina, abrir_en_dialogo, celda, configurar_tabla, crear_boton,
+                             formatear_euros, formatear_fecha, poner_botones_fila)
+from gui.crear_cuota import VentanaCrearCuota
 
 COLOR_PAGADA = QColor("#3fb950")
 COLOR_PENDIENTE = QColor("#e5484d")
@@ -12,7 +14,7 @@ COLOR_PENDIENTE = QColor("#e5484d")
 
 class VentanaCuotasPendientes(Pagina):
     def __init__(self, cursor):
-        super().__init__("Cuotas del mes", "Cobra o elimina las cuotas de cada mes.")
+        super().__init__("Cuotas del mes", "Genera, cobra o elimina las cuotas de cada mes.")
         self.cursor = cursor
 
         hoy = date.today()
@@ -35,6 +37,8 @@ class VentanaCuotasPendientes(Pagina):
         fila.addWidget(self.combo_año)
         fila.addStretch()
         fila.addWidget(self.etiqueta_resumen)
+        fila.addWidget(crear_boton("Generar cuotas del mes", self.generar_todas, tipo="secundario"))
+        fila.addWidget(crear_boton("+ Nueva cuota", self.nueva_cuota))
         self.layout_pagina.addLayout(fila)
 
         self.tabla = QTableWidget()
@@ -81,6 +85,31 @@ class VentanaCuotasPendientes(Pagina):
 
         self.etiqueta_resumen.setText(
             f"{pagadas} pagadas · {pendientes} pendientes · {formatear_euros(por_cobrar)} por cobrar")
+
+    def nueva_cuota(self):
+        pagina = VentanaCrearCuota(self.cursor)
+        pagina.recargar()                                    # alumnos y tipos de cuota
+        pagina.elegir_mes(self.combo_mes.currentData(), self.combo_año.currentData())
+        if abrir_en_dialogo(self, pagina, "Nueva cuota"):
+            self.recargar()
+
+    def generar_todas(self):
+        """Crea la cuota del mes elegido a todos los alumnos activos que aún no la tienen."""
+        mes_cuota = f"{self.combo_año.currentData()}-{self.combo_mes.currentData():02d}-01"
+        nombre_mes = f"{self.combo_mes.currentText().lower()} de {self.combo_año.currentText()}"
+        respuesta = QMessageBox.question(
+            self, "Generar cuotas",
+            f"¿Generar las cuotas de {nombre_mes} de todos los alumnos activos?\n\n"
+            "A cada uno se le pone el mismo tipo que su última cuota.",
+            QMessageBox.Yes | QMessageBox.No)
+        if respuesta != QMessageBox.Yes:
+            return
+        creadas, ya_existentes, sin_tipo = generar_cuotas_del_mes(self.cursor, mes_cuota)
+        mensaje = f"Cuotas creadas: {creadas}\nCuotas que ya existían: {ya_existentes}"
+        if sin_tipo:
+            mensaje += "\n\nSin cuota anterior (créala con «+ Nueva cuota»):\n• " + "\n• ".join(sin_tipo)
+        QMessageBox.information(self, "Cuotas generadas", mensaje)
+        self.recargar()
 
     def cobrar(self, id_cuota):
         resultado = marcar_cuota_pagada(self.cursor, id_cuota)

@@ -15,7 +15,6 @@ from gui.listado_gastos import VentanaListadoGastos
 from gui.registrar_asistencia import VentanaRegistrarAsistencia
 from gui.calendario_asistencia import VentanaCalendarioAsistencia
 from gui.cuotas_pendientes import VentanaCuotasPendientes
-from gui.crear_cuota import VentanaCrearCuota
 from gui.alta_tipo_cuota import VentanaAltaTipoCuota
 from gui.generar_factura import VentanaGenerarFactura
 from gui.listado_facturas import VentanaListadoFacturas
@@ -97,7 +96,6 @@ class VentanaPrincipal(QMainWindow):
         ])
         self.agregar_seccion("Cuotas", [
             ("Cuotas del mes", VentanaCuotasPendientes(cursor)),
-            ("Nueva cuota", VentanaCrearCuota(cursor)),
             ("Tipos de cuota", VentanaAltaTipoCuota(cursor)),
         ])
         self.agregar_seccion("Facturas", [
