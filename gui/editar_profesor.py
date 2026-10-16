@@ -8,7 +8,7 @@ from logica.validaciones import email_valido
 
 class VentanaEditarProfesor(FormularioBase):
     def __init__(self, cursor):
-        super().__init__("Edita profesor", "ambia los datos y pulsa Guardar.")
+        super().__init__("Edita profesor", "Cambia los datos y pulsa Guardar.")
         self.cursor = cursor
         self.id_profesor = None
 

@@ -62,7 +62,10 @@ Tecnologías: Python 3, PySide6, SQLite, Pandas, Matplotlib, Plotly y bcrypt.
 Para empezar desde cero, borra `gimnasio.db` y vuelve a arrancar la aplicación.
 
 ## Ejecutable para Windows
+    python datos_prueba.py
     python -m PyInstaller --noconfirm --windowed --icon assets/icono.ico --name CRMGimnasio --add-data "resources;resources" --add-data "assets;assets" --collect-data plotly main.py
+    Copy-Item gimnasio.db dist\CRMGimnasio\gimnasio.db -Force
+
 
 El programa queda en `dist/CRMGimnasio/`. La base de datos, las facturas (`facturas/`) y los
 informes (`informes_generados/`) se guardan junto a `CRMGimnasio.exe`, así que no se pierden
@@ -78,6 +81,7 @@ gimnasio vacío, borra `gimnasio.db` y la aplicación creará una nueva al abrir
 | operador | marcos.login@gimnasio.com | operador123 |
 
 El operador no ve las secciones "Usuarios" ni "Gastos".
+La cuenta de administrador principal no se puede borrar.
 
 ## Arquitectura
 La aplicación está dividida en capas. Cada capa solo llama a la de debajo:
