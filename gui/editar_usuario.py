@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QComboBox, QLineEdit, QMessageBox
 from db.consultas import datos_usuario, listar_profesores_activos
 from gui.componentes import FormularioBase, marcar_error
-from logica.usuarios import modificar_usuario
+from logica.usuarios import es_admin_principal, modificar_usuario
 from logica.validaciones import LONGITUD_MINIMA_PASSWORD
 
 MENSAJES_ERROR = {
@@ -10,6 +10,7 @@ MENSAJES_ERROR = {
     "contraseña corta": f"La contraseña debe tener al menos {LONGITUD_MINIMA_PASSWORD} caracteres.",
     "propio rol": "No puedes quitarte a ti mismo el rol de administrador.",
     "ultimo admin": "Es el único administrador: tiene que haber al menos uno.",
+    "admin principal": "Es la cuenta de administrador principal: siempre tiene que ser administrador.",
     "no existe": "Ese usuario ya no existe.",
 }
 
@@ -49,6 +50,9 @@ class VentanaEditarUsuario(FormularioBase):
         self.campo_nombre.setText(nombre)
         self.campo_email.setText(email)
         self.campo_rol.setCurrentIndex(self.campo_rol.findData(rol))
+        if es_admin_principal(self.cursor, id_usuario):
+            self.campo_rol.setEnabled(False)
+            self.campo_rol.setToolTip("La cuenta de administrador principal siempre es administrador.")
         self.campo_profesor.clear()
         self.campo_profesor.addItem("Ninguno (no es profesor)", None)
         for id_prof, nombre_prof in listar_profesores_activos(self.cursor):

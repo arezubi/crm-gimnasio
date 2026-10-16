@@ -5,7 +5,7 @@ from gui.componentes import (
 )
 from gui.editar_usuario import VentanaEditarUsuario
 from gui.registrar_usuario import VentanaRegistrarUsuario
-from logica.usuarios import eliminar_usuario
+from logica.usuarios import eliminar_usuario, es_admin_principal
 
 NOMBRES_ROL = {"admin": "Administrador", "operador": "Operador"}
 
@@ -35,15 +35,19 @@ class VentanaListadoUsuarios(Pagina):
         self.tabla.setRowCount(0)
         self.tabla.setRowCount(len(usuarios))
         for fila, (id_usuario, nombre, email, rol, profesor) in enumerate(usuarios):
+            principal = es_admin_principal(self.cursor, id_usuario)
+            if principal:
+                nombre += "  · principal"
             if id_usuario == self.id_actual:
                 nombre += "  (tú)"
             self.tabla.setItem(fila, 0, celda(nombre))
             self.tabla.setItem(fila, 1, celda(email))
             self.tabla.setItem(fila, 2, celda(NOMBRES_ROL.get(rol, rol)))
             self.tabla.setItem(fila, 3, celda(profesor or "—"))
-            poner_botones_fila(self.tabla, fila, 4, id_usuario,
-                               ("📝", self.editar_usuario, "secundario", "Editar usuario"),
-                               ("🗑️", self.borrar_usuario, "peligro", "Eliminar usuario"))
+            botones = [("📝", self.editar_usuario, "secundario", "Editar usuario")]
+            if not principal:                # la cuenta principal no se puede borrar
+                botones.append(("🗑️", self.borrar_usuario, "peligro", "Eliminar usuario"))
+            poner_botones_fila(self.tabla, fila, 4, id_usuario, *botones)
         self.etiqueta_resumen.setText(plural(len(usuarios), "usuario", "usuarios"))
 
     def nuevo_usuario(self):
@@ -66,7 +70,10 @@ class VentanaListadoUsuarios(Pagina):
         if respuesta != QMessageBox.Yes:
             return
         resultado = eliminar_usuario(self.cursor, id_usuario, self.id_actual)
-        if resultado == "propio":
+        if resultado == "admin principal":
+            QMessageBox.warning(self, "No se puede eliminar",
+                                "Es la cuenta de administrador principal y no se puede eliminar.")
+        elif resultado == "propio":
             QMessageBox.warning(self, "No se puede eliminar", "No puedes eliminar tu propio usuario.")
         elif resultado == "ultimo admin":
             QMessageBox.warning(self, "No se puede eliminar",

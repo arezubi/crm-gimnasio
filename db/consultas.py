@@ -297,3 +297,9 @@ def contar_admins(cursor):
     """Devuelve cuántos usuarios tienen el rol de administrador."""
     cursor.execute("SELECT COUNT(*) FROM usuarios WHERE rol = 'admin'")
     return cursor.fetchone()[0]
+
+def id_admin_principal(cursor):
+    """Devuelve el id del administrador principal: el primer usuario que se creó
+    (el que crea la aplicación al arrancar por primera vez), o None si no hay usuarios."""
+    cursor.execute("SELECT MIN(id) FROM usuarios")
+    return cursor.fetchone()[0]

@@ -1,7 +1,13 @@
-from db.consultas import contar_admins, datos_usuario
+from db.consultas import contar_admins, datos_usuario, id_admin_principal
 from db.db import actualizar_usuario, borrar_usuario, cambiar_password
 from logica.autenticacion import cifrar_password, password_correcta
 from logica.validaciones import email_valido, password_valida
+
+
+def es_admin_principal(cursor, id_usuario):
+    """True si es la cuenta de administrador que se creó al instalar la aplicación.
+    Esa cuenta no se puede borrar ni dejar de ser administrador: así nunca se pierde el acceso."""
+    return id_usuario == id_admin_principal(cursor)
 
 
 def es_ultimo_admin(cursor, id_usuario):
@@ -14,7 +20,7 @@ def modificar_usuario(cursor, id_usuario, id_actual, nombre, email, rol, id_prof
     """Un administrador cambia los datos de un usuario y, si escribe una, su contraseña.
     id_actual es el usuario que ha iniciado sesión.
     Devuelve True, False, 'no existe', 'duplicado', 'email no válido', 'contraseña corta',
-    'propio rol' (quitarse a sí mismo el rol de admin) o 'ultimo admin'."""
+    'propio rol' (quitarse a sí mismo el rol de admin), 'admin principal' o 'ultimo admin'."""
     if datos_usuario(cursor, id_usuario) is None:
         return "no existe"
     if not email_valido(email):
@@ -22,6 +28,8 @@ def modificar_usuario(cursor, id_usuario, id_actual, nombre, email, rol, id_prof
     if password_nueva and not password_valida(password_nueva):
         return "contraseña corta"
     if rol != "admin":
+        if es_admin_principal(cursor, id_usuario):
+            return "admin principal"
         if id_usuario == id_actual:
             return "propio rol"
         if es_ultimo_admin(cursor, id_usuario):
@@ -34,8 +42,11 @@ def modificar_usuario(cursor, id_usuario, id_actual, nombre, email, rol, id_prof
 
 
 def eliminar_usuario(cursor, id_usuario, id_actual):
-    """Borra un usuario. No se puede borrar uno mismo ni al último administrador.
-    Devuelve True, False, 'no existe', 'propio' o 'ultimo admin'."""
+    """Borra un usuario. No se puede borrar uno mismo, ni al administrador principal,
+    ni al último administrador.
+    Devuelve True, False, 'no existe', 'propio', 'admin principal' o 'ultimo admin'."""
+    if es_admin_principal(cursor, id_usuario):
+        return "admin principal"
     if id_usuario == id_actual:
         return "propio"
     if es_ultimo_admin(cursor, id_usuario):
